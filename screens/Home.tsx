@@ -1,68 +1,89 @@
 import { StyleSheet, View, Pressable } from 'react-native'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { ScrollView } from 'react-native'
-
+import Icon from 'react-native-vector-icons/MaterialIcons'
 import SearchBar from '../components/SearchBar'
+
 import ListItemClient from '../components/ListItemClient'
-import { IClientData } from '../types'
-import { getTasks, writeTask } from '../database/DatabaseActions'
+import { TClientData } from '../types'
+import { NavigationProp, useFocusEffect } from '@react-navigation/native'
+import { GetRealm } from '../database/GetRealm'
 
-export default function Home({ navigation }: any) {
-	const [searchTerm, setSearchTerm] = useState<string>('')
-	const [filter, setFilter] = useState<IClientData[]>()
-	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
-
-	/*useEffect(() => {
-		 if (searchTerm != null) {
-			 const clientsAfterFilter = allClientes.filter(
-				 (client) =>
-					 client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					 client.id.toString() === searchTerm
-			 );
-			 setFilter(clientsAfterFilter);
-		 }
-
- let options = null;
-
- if (showSearchBar) {
-	 options = {
-		 headerTitle: () => (
-			 <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-		 ),
-		 headerRight: () => (
-			 <Pressable
-				 onPress={() => {
-					 setShowSearchBar(false);
-					 setSearchTerm("");
-				 }}
-			 >
-				 { <Ionicons name="ios-close-sharp" size={24} color="#ffffff" /> }
-			 </Pressable >
-		 ),
-	 };
-navigation.setOptions(options);
- } else {
- options = {
-	 headerTitle: null,
-	 headerRight: () => (
-		 <Pressable onPress={() => setShowSearchBar(true)}>
-			 { <Ionicons name="ios-search-sharp" size={20} color="#ffffff" /> }
-		 </Pressable>
-	 ),
- };
- navigation.setOptions(options);
+interface RouterProps {
+	navigation: NavigationProp<any, 'Home'>;
 }
 
-	}, [searchTerm, showSearchBar]);*/
+export default function Home({ navigation }: RouterProps) {
+	const [searchTerm, setSearchTerm] = useState<string>('')
+	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
+	const [clientState, setClientState] = useState<any[] | TClientData[]>([])
+
+	
+	const fetchClients = async () => {
+		const realm = await GetRealm()
+		try {
+			const response = realm
+				.objects<TClientData[]>('Clients5')
+				.sorted('created_at')
+				.toJSON()
+			console.log('dataaaaaa\n\n', response)
+
+			setClientState(response)
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+
+	const changeHeaderBar = () => {
+		let options = null
+
+		if (showSearchBar) {
+			options = {
+				headerTitle: () => (
+					<SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+				),
+				headerRight: () => (
+					<Pressable
+						onPress={() => {
+							setShowSearchBar(false)
+							setSearchTerm('')
+						}}
+					>
+						<Icon name="close" size={24} color="white" />
+					</Pressable >
+				),
+			}
+
+		} else {
+			options = {
+				headerTitle: null,
+				headerRight: () => (
+					<Pressable onPress={() => setShowSearchBar(true)}>
+						<Icon name="search" size={20} color="#ffffff" />
+					</Pressable>
+				),
+			}
+		}
+		navigation.setOptions(options)
+	}
+
+	useFocusEffect(useCallback(() => {
+		fetchClients()
+	}, []))
+
+	useEffect(() => {
+		changeHeaderBar()
+	}, [searchTerm, showSearchBar])
 
 	return (
 		<View style={styles.container}>
 			<ScrollView>
-				{filter?.map((client) => (
+				{clientState.map(client => (
 					<Pressable
-						key={client.id}
+						key={client._id}
 						onPressIn={() =>
-							navigation.navigate('ClientPage', { id: client.id })
+							navigation.navigate('ClientPage', { id: client._id })
 						}
 					>
 						<ListItemClient clientData={client} />
@@ -75,7 +96,7 @@ navigation.setOptions(options);
 					style={styles.fab}
 					onPressIn={() => navigation.navigate('Register')}
 				>
-					{/* <Entypo name="plus" size={24} color="white" /> */}
+					<Icon name="add" size={24} color="white" />
 				</Pressable>
 			</View>
 		</View>
