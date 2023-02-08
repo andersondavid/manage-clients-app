@@ -1,5 +1,5 @@
-export interface IClientData {
-	id: number;
+export type TClientData = {
+	_id: number;
 	status?: string;
 	name?: string;
 	user?: string;
@@ -17,14 +17,5 @@ export interface IClientData {
 	totalValue?: number;
 	creditedValue?: number;
 	profitValue?: number;
+	created_at: Date
 }
-
-export interface IFullData {
-	lastUpdate: Date
-	clientsData: IClientData[]
-}
-
-type InputsForms = {
-  example: string,
-  exampleRequired: string,
-};

@@ -2,13 +2,15 @@ import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-nati
 import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
 
 import { TextInputEl } from '../components/TextInputEl'
-//import { IClientData } from '../types'
+import { writeClient } from '../database/DatabaseActions'
+import { TClientData } from '../types'
 
 export default function RegisterForm() {
 
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		console.log(data)
+		data._id = parseInt(data._id)
+		writeClient(data as TClientData)
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
@@ -33,7 +35,7 @@ export default function RegisterForm() {
 				<FormProvider {...methods}>
 					<TextInputEl
 						label={'ID'}
-						name={'id'}
+						name={'_id'}
 						placeholder={'ID'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
@@ -74,7 +76,7 @@ export default function RegisterForm() {
 						rules={{ required: false }}
 					/>
 					<TextInputEl
-						label={'appApp'}
+						label={'App'}
 						name={'app'}
 						placeholder={'Aplicativo'}
 						keyboardType={'default'}
@@ -83,7 +85,7 @@ export default function RegisterForm() {
 					<TextInputEl
 						label={'WhatsApp'}
 						name={'whatsapp'}
-						placeholder={'Senha'}
+						placeholder={'WhatsApp'}
 						keyboardType={'default'}
 						rules={{ required: false }}
 					/>
