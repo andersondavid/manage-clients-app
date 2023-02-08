@@ -1,19 +1,25 @@
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from 'react-native'
 
-export default function SearchBar(props: any) {
-	const { searchTerm, setSearchTerm } = props;
+type PropTypes = {
+	searchTerm: string,
+  setSearchTerm: (value: string) => void,
+}
+
+
+export default function SearchBar(props: PropTypes) {
+	const { searchTerm, setSearchTerm } = props
 	
 	return (
 		<View style={styles.inputContainer}>
 			<TextInput
-				placeholderTextColor={"#777"}
+				placeholderTextColor={'#777'}
 				style={styles.formInputField}
 				value={searchTerm}
-				placeholder={"Pesquisar"}
+				placeholder={'Pesquisar'}
 				onChangeText={(terms) => setSearchTerm(terms)}
 			/>
 		</View>
-	);
+	)
 }
 
 const styles = StyleSheet.create({
@@ -22,9 +28,10 @@ const styles = StyleSheet.create({
 		flex: 1
 	},
 	formInputField: {
-		width: "800%",
+		height: 46,
+		width: '80%',
 		fontSize: 16,
 		lineHeight: 18,
-		color: "#fff",
+		color: '#fff',
 	},
-});
+})
