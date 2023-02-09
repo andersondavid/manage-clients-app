@@ -4,6 +4,24 @@ import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues }
 import { TextInputEl } from '../components/TextInputEl'
 import { writeClient } from '../database/DatabaseActions'
 import { TClientData } from '../types'
+import { PickerEl } from '../components/PickerEl'
+
+const devicesEnums = [
+	{ value: 'smarttv', text: 'TV SMART' },
+	{ value: 'tvaoc', text: 'TV AOC' },
+	{ value: 'tvlg', text: 'TV LG' },
+	{ value: 'tvsamsung', text: 'TV SANSUNG' },
+	{ value: 'tvphilips', text: 'TV PHILIPS' },
+	{ value: 'tvtcl', text: 'TV TCL' },
+	{ value: 'tvbox', text: 'TV BOX' },
+	{ value: 'pc', text: 'PC/COMPUTADOR' }
+]
+
+const plansEnums = [
+	{ value: 'sigle_screen', text: '1 TELA' },
+	{ value: 'dual_screen', text: '2 TELAS' },
+]
+
 
 export default function RegisterForm() {
 
@@ -36,56 +54,76 @@ export default function RegisterForm() {
 					<TextInputEl
 						label={'ID'}
 						name={'_id'}
-						placeholder={'ID'}
+						placeholder={'1, 2, 3, ...'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
 					/>
 					<TextInputEl
 						label={'Nome'}
 						name={'name'}
-						placeholder={'Nome'}
+						placeholder={'Flavio'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
 					/>
 					<TextInputEl
 						label={'Usuario'}
 						name={'user'}
-						placeholder={'Usuario'}
+						placeholder={'flavio01'}
 						keyboardType={'default'}
 						rules={{ required: 'Usuario is required!' }}
 					/>
 					<TextInputEl
 						label={'Senha'}
 						name={'pass'}
-						placeholder={'Senha'}
+						placeholder={'senha123'}
 						keyboardType={'default'}
 						rules={{ required: 'Senha is required!' }}
 					/>
 					<TextInputEl
+						label={'Servidor'}
+						name={'server'}
+						placeholder={'http://...'}
+						keyboardType={'default'}
+						rules={{ required: 'Servidor is required!' }}
+					/>
+					<PickerEl
+						label={'Plano'}
+						name={'plan'}
+						options={plansEnums}
+						value={'sigle_screen'}
+						rules={{ required: false }}
+					/>
+					<TextInputEl
 						label={'Nome do pagante'}
 						name={'paymentPerson'}
-						placeholder={'Nome do pagante'}
+						placeholder={'Flavio ...'}
 						keyboardType={'default'}
 						rules={{ required: false }}
 					/>
 					<TextInputEl
-						label={'Aparelho'}
+						label={'Forma de Pagamento'}
+						name={'paymentMethod'}
+						placeholder={'PIX, Especie...'}
+						rules={{ required: false }}
+					/>
+					<PickerEl
+						label={'Dispositivo'}
 						name={'device'}
-						placeholder={'Aparelho'}
-						keyboardType={'default'}
+						options={devicesEnums}
+						value={'smarttv'}
 						rules={{ required: false }}
 					/>
 					<TextInputEl
-						label={'App'}
+						label={'Aplicativo'}
 						name={'app'}
-						placeholder={'Aplicativo'}
+						placeholder={'IP Tv'}
 						keyboardType={'default'}
 						rules={{ required: false }}
 					/>
 					<TextInputEl
 						label={'WhatsApp'}
 						name={'whatsapp'}
-						placeholder={'WhatsApp'}
+						placeholder={'99 98765-4231'}
 						keyboardType={'default'}
 						rules={{ required: false }}
 					/>
@@ -97,6 +135,8 @@ export default function RegisterForm() {
 						</View>
 					</Pressable>
 				</View>
+
+
 			</ScrollView>
 		</View>
 	)
