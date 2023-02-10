@@ -1,34 +1,36 @@
-import Realm from 'realm'
 import { GetRealm } from './GetRealm'
-import { IClientData } from '../types'
+import { TClientData } from '../types'
 
-
-export type ITaskObject = IClientData & Realm.Object;
-
-let createdTask: ITaskObject
-export const writeTask = async (data: IClientData) => {
+export const writeClient = async (data: TClientData): Promise<TClientData | undefined> => {
 	const realm = await GetRealm()
-
-	const data2 = realm.write(() => {
-		createdTask = realm.create('Clients', data)
-	})
-
-	console.log(data2)
-	
-
-	return createdTask
-}
-
-
-
-export const getTasks = async () => {
-	const realm = await GetRealm()
+	data.created_at = new Date()
+	let result
 
 	try {
-		const data = realm.objects<IClientData>('Clients')
-
-		console.log(data)
+		realm.write(() => {
+			result = realm.create('Clients6', data)
+				.toJSON()
+		})
 	} catch (error) {
-		console.log(error)
+		console.error(error)
+	}
+	
+	realm.close()
+	return result
+}
+
+export const getClientFromDatebase = async (selectedId: number) => {
+	const realm = await GetRealm()
+	try {
+		const response = realm
+			.objectForPrimaryKey('Clients6', selectedId)
+			?.toJSON()
+
+		realm.close()
+
+		return response
+
+	} catch (error) {
+		console.error(error)
 	}
 }
