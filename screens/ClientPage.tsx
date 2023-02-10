@@ -5,15 +5,6 @@ import { useEffect, useState } from 'react'
 import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 
-// const ButtonUpdate = ({ navigation, clientID }: any) => {
-// 	return (
-// 		<Pressable
-// 			onPressIn={() => navigation.navigate('Update', { id: clientID })}
-// 		>
-// 			{/* <MaterialCommunityIcons name="update" size={24} color="#ffffff" /> */}
-// 		</Pressable>
-// 	)
-// }
 
 export default function ClientPage({ route, navigation }: any) {
 	const selectedId = route.params.id
@@ -110,6 +101,10 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>{device}</Text>
 				</View>
 				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Aplicativo</Text>
+					<Text style={styles.itemClient}>{app}</Text>
+				</View>
+				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Servidor</Text>
 					<Text style={styles.itemClient}>{server}</Text>
 				</View>
@@ -150,7 +145,7 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>{profitValue}</Text>
 				</View>
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable>
+					<Pressable onPress={() => navigation.navigate('UpdatePayment')}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>ATUALIZAR</Text>
 						</View>

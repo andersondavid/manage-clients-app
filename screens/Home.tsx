@@ -18,15 +18,14 @@ export default function Home({ navigation }: RouterProps) {
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 	const [clientState, setClientState] = useState<any[] | TClientData[]>([])
 
-	
+
 	const fetchClients = async () => {
 		const realm = await GetRealm()
 		try {
 			const response = realm
-				.objects<TClientData[]>('Clients5')
+				.objects<TClientData[]>('Clients6')
 				.sorted('created_at')
 				.toJSON()
-			console.log('dataaaaaa\n\n', response)
 
 			setClientState(response)
 		} catch (error) {
