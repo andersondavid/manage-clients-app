@@ -1,39 +1,50 @@
-import { StyleSheet, View, Text, Pressable } from "react-native";
-import { ScrollView } from "react-native";
-import { allClientes } from "../dataTest";
-// import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
+import { ScrollView } from 'react-native'
+import { TClientData } from '../types'
+import { useEffect, useState } from 'react'
+import { getClientFromDatebase } from '../database/DatabaseActions'
+import { formatDate } from '../utils/formatDate'
 
-import { formatDate } from "../utils/formatDate";
-
-import { IClientData } from "../types";
-import { useEffect } from "react";
-
-const ButtonUpdate = ({ navigation, clientID }: any) => {
-	return (
-		<Pressable
-			onPressIn={() => navigation.navigate("Update", { id: clientID })}
-		>
-			{/* <MaterialCommunityIcons name="update" size={24} color="#ffffff" /> */}
-		</Pressable>
-	);
-};
+// const ButtonUpdate = ({ navigation, clientID }: any) => {
+// 	return (
+// 		<Pressable
+// 			onPressIn={() => navigation.navigate('Update', { id: clientID })}
+// 		>
+// 			{/* <MaterialCommunityIcons name="update" size={24} color="#ffffff" /> */}
+// 		</Pressable>
+// 	)
+// }
 
 export default function ClientPage({ route, navigation }: any) {
-	const selectedId = route.params.id;
-	const selectedClient: IClientData = allClientes.find(
-		(client) => client.id === selectedId
-	)!;
+	const selectedId = route.params.id
+	const [clientState, setClientState] = useState<any | TClientData>({})
+
+	const removeClient = () => {
+		Alert.alert(
+			'Apagar Cliente',
+			'Deseja remover esse cliente dos registros?\nO processo é inreversivel',
+			[
+				{
+					text: 'Cancelar',
+					onPress: () => console.log('Cancel Pressed'),
+				},
+				{
+					text: 'Apagar',
+					onPress: () => console.log('Remover Pressed'),
+				},
+			]
+		)
+	}
 
 	useEffect(() => {
-		navigation.setOptions({
-			headerRight: () => (
-				<ButtonUpdate clientID={selectedId} navigation={navigation} />
-			),
-		});
-	}, []);
+		const loadClient = async () => {
+			const clientData = await getClientFromDatebase(selectedId)
+			setClientState(clientData)
+		}; loadClient()
+	}, [])
 
 	const {
-		id,
+		_id,
 		status,
 		name,
 		user,
@@ -49,7 +60,10 @@ export default function ClientPage({ route, navigation }: any) {
 		totalValue,
 		creditedValue,
 		profitValue,
-	} = selectedClient;
+		paymentPerson,
+		created_at,
+		app
+	}: TClientData = clientState
 
 	return (
 		<View style={styles.container}>
@@ -68,11 +82,15 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>ID</Text>
-					<Text style={styles.itemClient}>{id}</Text>
+					<Text style={styles.itemClient}>{_id}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>WhatsApp</Text>
 					<Text style={styles.itemClient}>{whatsapp}</Text>
+				</View>
+				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Cadastrado em </Text>
+					<Text style={styles.itemClient}>{created_at && formatDate(created_at)}</Text>
 				</View>
 
 				<View style={styles.itemHeader}>
@@ -97,11 +115,15 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Data da Ativação</Text>
-					<Text style={styles.itemClient}>{}</Text>
+					<Text style={styles.itemClient}>{activationDate && formatDate(activationDate)}</Text>
 				</View>
 
 				<View style={styles.itemHeader}>
 					<Text style={styles.itemHeaderText}>Status do Pagamento</Text>
+				</View>
+				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Nome do Pagador</Text>
+					<Text style={styles.itemClient}>{paymentPerson}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Meio de Pagamento</Text>
@@ -109,7 +131,7 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Ultimo Pagamento</Text>
-					<Text style={styles.itemClient}>{}</Text>
+					<Text style={styles.itemClient}>{lastPayment && formatDate(lastPayment)}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Dias Restantes</Text>
@@ -127,45 +149,81 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>Lucro</Text>
 					<Text style={styles.itemClient}>{profitValue}</Text>
 				</View>
+				<View style={[styles.form, styles.formLoad]}>
+					<Pressable>
+						<View style={styles.squareBtn}>
+							<Text style={styles.textBtn}>ATUALIZAR</Text>
+						</View>
+					</Pressable>
+				</View>
+				<View style={[styles.form, styles.formLoad]}>
+					<Pressable onPress={removeClient}>
+						<View style={[styles.squareBtn, { backgroundColor: '#ff2233' }]}>
+							<Text style={styles.textBtn}>APAGAR CLIENTE</Text>
+						</View>
+					</Pressable>
+				</View>
 			</ScrollView>
 		</View>
-	);
+	)
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#121212",
+		backgroundColor: '#121212',
 	},
 	nameContainer: {
 		paddingHorizontal: 8,
 		paddingVertical: 8,
-		backgroundColor: "#2233FF",
+		backgroundColor: '#2233FF',
 	},
 	clientName: {
 		fontSize: 18,
-		color: "#fff",
+		color: '#fff',
 	},
 	itemHeader: {
-		backgroundColor: "#2233FF",
+		backgroundColor: '#2233FF',
 		padding: 4,
 	},
 	itemHeaderText: {
 		fontSize: 16,
-		color: "#fff",
-		backgroundColor: "#2233FF",
-		textAlign: "center",
+		color: '#fff',
+		backgroundColor: '#2233FF',
+		textAlign: 'center',
 	},
 	itensContainer: {
 		paddingHorizontal: 12,
 		paddingVertical: 8,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		borderBottomColor: "#fff2",
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		borderBottomColor: '#fff2',
 		borderBottomWidth: 0.5,
 	},
 	itemClient: {
 		fontSize: 14,
-		color: "#fff",
+		color: '#fff',
 	},
-});
+	form: {
+		flex: 1,
+		padding: 16,
+		paddingBottom: 0
+	},
+	formLoad: {
+		flexDirection: 'row',
+		justifyContent: 'flex-end',
+		alignItems: 'flex-end',
+	},
+	squareBtn: {
+		backgroundColor: '#2233FF',
+		borderRadius: 5,
+		width: '100%',
+		paddingVertical: 10,
+		paddingHorizontal: 15,
+	},
+	textBtn: {
+		lineHeight: 18,
+		fontSize: 16,
+		color: '#fff',
+	},
+})
