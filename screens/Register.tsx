@@ -5,6 +5,7 @@ import { TextInputEl } from '../components/TextInputEl'
 import { writeClient } from '../database/DatabaseActions'
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
+import { NavigationProp } from '@react-navigation/native'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -22,13 +23,22 @@ const plansEnums = [
 	{ value: 'dual_screen', text: '2 TELAS' },
 ]
 
+interface RouterProps {
+	navigation: NavigationProp<any, 'Register'>;
+}
 
-export default function RegisterForm() {
+
+export default function RegisterForm({ navigation }: RouterProps) {
 
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		data._id = parseInt(data._id)
 		writeClient(data as TClientData)
+			.then(data => {
+				Alert.alert('Sucesso', `Cliente ${data?.name} cadastrado.`)
+				navigation.navigate('ClientPage', { id: data?._id })
+			})
+			.catch(err => Alert.alert('Erro', 'houve algum erro durante a operação.'))
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
@@ -84,7 +94,6 @@ export default function RegisterForm() {
 						name={'server'}
 						placeholder={'http://...'}
 						keyboardType={'default'}
-						rules={{ required: 'Servidor is required!' }}
 					/>
 					<PickerEl
 						label={'Plano'}
@@ -98,12 +107,6 @@ export default function RegisterForm() {
 						name={'paymentPerson'}
 						placeholder={'Flavio ...'}
 						keyboardType={'default'}
-						rules={{ required: false }}
-					/>
-					<TextInputEl
-						label={'Forma de Pagamento'}
-						name={'paymentMethod'}
-						placeholder={'PIX, Especie...'}
 						rules={{ required: false }}
 					/>
 					<PickerEl
