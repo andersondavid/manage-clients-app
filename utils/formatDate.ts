@@ -1,10 +1,10 @@
-export const formatDate = (date: Date) => {
-	let fixMonth = date.getMonth() + 1;
-	let addZeroToMouth = fixMonth < 10 ? "0" + fixMonth : fixMonth;
+export const formatDate = (iSOString: string | Date) => {
 
-	let day = date.getDate();
-	let month = addZeroToMouth;
-	let year = date.getFullYear().toString().substring(4, 2);
+	const date = new Date(iSOString)
 
-	return `${day}/${month}/${year}`;
-};
+	const day = date.getDate().toString().padStart(2, '0')
+	const month = (date.getMonth() + 1).toString().padStart(2, '0')
+	const year = date.getFullYear().toString().substring(4, 2)
+
+	return `${day}/${month}/${year}`
+}
