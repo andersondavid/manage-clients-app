@@ -75,6 +75,7 @@
 	- Metodo de pagamento
 	- Nome do pagante
 	- Ultimo Pagamento
+	- Data de Expiração
 	- Dias restantes
 	- Valor total
 	- Historico de pagamento
@@ -84,3 +85,24 @@
 - Editar
 - Atualizar pagamento
 - Excluir cliente
+
+# Estrutura do banco de dados
+
+- array de cliente
+	- cliente
+		- id
+		- nome
+		- user
+		- senha
+		- status
+		- data do cadastro
+		- plano
+		- servidor
+		- app
+		- data da ativação
+		- nome do pagante
+		- data de expiração
+		- array de pagamento
+			- valor
+			- data
+			- metodo
