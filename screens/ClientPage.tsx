@@ -4,10 +4,13 @@ import { TClientData } from '../types'
 import { useEffect, useState } from 'react'
 import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
+import Icon from 'react-native-vector-icons/MaterialIcons'
+
+
 
 
 export default function ClientPage({ route, navigation }: any) {
-	const selectedId = route.params.id
+	const currentClientID = route.params.id
 	const [clientState, setClientState] = useState<any | TClientData>({})
 
 	const removeClient = () => {
@@ -26,12 +29,25 @@ export default function ClientPage({ route, navigation }: any) {
 			]
 		)
 	}
+	const setNavigationOptions = () => {
+		navigation.setOptions({
+			headerRight: () => (
+				<Pressable
+					onPress={() => navigation.navigate('Register', { id: currentClientID })}
+				>
+					<Icon name="create" size={22} color="white" />
+				</Pressable >
+			),
+		})
+	}
 
 	useEffect(() => {
 		const loadClient = async () => {
-			const clientData = await getClientFromDatebase(selectedId)
+			const clientData = await getClientFromDatebase(currentClientID)
 			setClientState(clientData)
 		}; loadClient()
+
+		setNavigationOptions()
 	}, [])
 
 	const {
