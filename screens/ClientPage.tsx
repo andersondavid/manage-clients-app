@@ -6,49 +6,9 @@ import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-
-
-
 export default function ClientPage({ route, navigation }: any) {
-	const currentClientID = route.params.id
-	const [clientState, setClientState] = useState<any | TClientData>({})
-
-	const removeClient = () => {
-		Alert.alert(
-			'Apagar Cliente',
-			'Deseja remover esse cliente dos registros?\nO processo é inreversivel',
-			[
-				{
-					text: 'Cancelar',
-					onPress: () => console.log('Cancel Pressed'),
-				},
-				{
-					text: 'Apagar',
-					onPress: () => console.log('Remover Pressed'),
-				},
-			]
-		)
-	}
-	const setNavigationOptions = () => {
-		navigation.setOptions({
-			headerRight: () => (
-				<Pressable
-					onPress={() => navigation.navigate('Register', { _id: currentClientID, editMode: true })}
-				>
-					<Icon name="create" size={22} color="white" />
-				</Pressable >
-			),
-		})
-	}
-
-	useEffect(() => {
-		const loadClient = async () => {
-			const clientData = await getClientFromDatebase(currentClientID)
-			setClientState(clientData)
-		}; loadClient()
-
-		setNavigationOptions()
-	}, [])
+	const currentClientID = route.params._id
+	const [clientData, setClientData] = useState<any | TClientData>({})
 
 	const {
 		_id,
@@ -70,7 +30,45 @@ export default function ClientPage({ route, navigation }: any) {
 		paymentPerson,
 		created_at,
 		app
-	}: TClientData = clientState
+	}: TClientData = clientData
+
+	const removeClient = () => {
+		Alert.alert(
+			'Apagar Cliente',
+			'Deseja remover esse cliente dos registros?\nO processo é inreversivel',
+			[
+				{
+					text: 'Cancelar',
+					onPress: () => console.log('Cancel Pressed'),
+				},
+				{
+					text: 'Apagar',
+					onPress: () => console.log('Remover Pressed'),
+				},
+			]
+		)
+	}
+	const setNavigationOptions = () => {
+		navigation.setOptions({
+			headerRight: () => (
+				<Pressable
+					onPress={() => navigation.navigate('Register', { _id: currentClientID, isEditMode: true })}
+				>
+					<Icon name="create" size={22} color="white" />
+				</Pressable >
+			),
+		})
+	}
+	
+	useEffect(() => {
+		const loadClient = async () => {
+			const clientData = await getClientFromDatebase(currentClientID)
+			setClientData(clientData)
+			
+		}; loadClient()
+
+		setNavigationOptions()
+	}, [])
 
 	return (
 		<View style={styles.container}>
