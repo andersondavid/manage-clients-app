@@ -10,11 +10,10 @@ interface TextInputProps extends RNTextInputProps, UseControllerProps {
 	defaultValue?: string //ADD DEFAULT VALUE TO PROPS
 }
 
-
 const ControlledInput = (props: TextInputProps) => {
-	const { label, name, rules, ...inputProps } = props
+	const { label, name, rules, defaultValue, ...inputProps  } = props
 	const { field } = useController({ name, rules })
-
+	
 	return (
 		<View style={styles.inputContainer}>
 			{label && <Text style={styles.formInputLabel}>{label}</Text>}
@@ -23,6 +22,7 @@ const ControlledInput = (props: TextInputProps) => {
 				onChangeText={field.onChange}
 				onBlur={field.onBlur}
 				value={field.value}
+				defaultValue={defaultValue}
 				style={styles.formInputField}
 				{...inputProps}
 			/>
