@@ -10,10 +10,12 @@ import Register from './screens/Register'
 import RegisterPlan from './screens/RegisterPlan'
 import UpdatePayment from './screens/UpdatePayment'
 
+import { RootStackParamList } from './types'
+
 export default function App() {
 
 
-	const Stack = createNativeStackNavigator()
+	const Stack = createNativeStackNavigator<RootStackParamList>()
 	return (
 		<SafeAreaView style={styles.container}>
 
