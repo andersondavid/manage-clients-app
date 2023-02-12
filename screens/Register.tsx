@@ -2,11 +2,12 @@ import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-nati
 import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
 
 import { TextInputEl } from '../components/TextInputEl'
-import { writeClient } from '../database/DatabaseActions'
+import { getClientFromDatebase, writeClient } from '../database/DatabaseActions'
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types'
+import { useEffect, useState } from 'react'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -24,28 +25,45 @@ const plansEnums = [
 	{ value: 'dual_screen', text: '2 TELAS' },
 ]
 
+
 type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
-
 export default function Register({ navigation, route }: RouterProps) {
-
 	const params = route.params
 
-	if(params.isEditMode) {
-		console.log('params:', params)
-	}
-	
+	const [clientValues, setClientValues] = useState<any | TClientData>()
+	console.log('clientValues', clientValues)
 
-	const { ...methods } = useForm()
+	const { ...methods } = useForm({
+		defaultValues: {
+			_id: clientValues?._id,
+			...clientValues
+		}
+	})
+
+	const loadClient = async (_id: string) => {
+		getClientFromDatebase(_id)
+			.then((data) => setClientValues(data))
+			.catch(err => console.log('Erro ao carregar cliente para edição', err))
+	}
+
+	useEffect(() => {
+		if (params?.isEditMode) {
+			console.log('params:', params)
+			loadClient(params?._id)
+		} else {
+			console.log('nada de id')
+		}
+	}, [])
+
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		data._id = parseInt(data._id)
 		writeClient(data as TClientData)
 			.then(data => {
-				Alert.alert('Sucesso', `Cliente ${data?.name} cadastrado.`, [
+				Alert.alert('Sucesso', `Cliente ${data?.name} ${params?.isEditMode ? 'atualizado' : 'cadastrado'}`, [
 					{ text: 'Abrir Cliente', onPress: () => navigation.navigate('ClientPage', { _id: data?._id }) }
 				])
 			})
-			.catch(() => Alert.alert('Erro', 'houve algum erro durante a operação.'))
+			.catch((error) => {Alert.alert('Erro', 'houve algum erro durante a operação.'); console.log(error)})
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
@@ -71,6 +89,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'ID'}
 						name={'_id'}
+						defaultValue={clientValues?._id}
 						placeholder={'1, 2, 3, ...'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
@@ -78,12 +97,14 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Nome'}
 						name={'name'}
+						defaultValue={clientValues?.name}
 						placeholder={'Flavio'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
 					/>
 					<TextInputEl
 						label={'Usuario'}
+						defaultValue={clientValues?.user}
 						name={'user'}
 						placeholder={'flavio01'}
 						keyboardType={'default'}
@@ -92,6 +113,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Senha'}
 						name={'pass'}
+						defaultValue={clientValues?.pass}
 						placeholder={'senha123'}
 						keyboardType={'default'}
 						rules={{ required: 'Senha is required!' }}
@@ -99,12 +121,14 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Servidor'}
 						name={'server'}
+						defaultValue={clientValues?.server}
 						placeholder={'http://...'}
 						keyboardType={'default'}
 					/>
 					<PickerEl
 						label={'Plano'}
 						name={'plan'}
+						defaultValue={clientValues?.plan}
 						options={plansEnums}
 						value={'sigle_screen'}
 						rules={{ required: false }}
@@ -112,6 +136,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Nome do pagante'}
 						name={'paymentPerson'}
+						defaultValue={clientValues?.paymentPerson}
 						placeholder={'Flavio ...'}
 						keyboardType={'default'}
 						rules={{ required: false }}
@@ -119,6 +144,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<PickerEl
 						label={'Dispositivo'}
 						name={'device'}
+						defaultValue={clientValues?.device}
 						options={devicesEnums}
 						value={'smarttv'}
 						rules={{ required: false }}
@@ -126,6 +152,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Aplicativo'}
 						name={'app'}
+						defaultValue={clientValues?.app}
 						placeholder={'IP Tv'}
 						keyboardType={'default'}
 						rules={{ required: false }}
@@ -133,6 +160,7 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'WhatsApp'}
 						name={'whatsapp'}
+						defaultValue={clientValues?.whatsapp}
 						placeholder={'99 98765-4231'}
 						keyboardType={'default'}
 						rules={{ required: false }}

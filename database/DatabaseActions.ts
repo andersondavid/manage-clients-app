@@ -5,7 +5,6 @@ export const writeClient = async (data: TClientData): Promise<TClientData | unde
 	const realm = await GetRealm()
 	data.created_at = new Date()
 	let result
-	console.log(result)
 
 	try {
 		realm.write(() => {
