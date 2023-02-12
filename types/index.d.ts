@@ -1,5 +1,5 @@
 export type TClientData = {
-	_id: number;
+	_id: string
 	status?: string;
 	name?: string;
 	user?: string;
@@ -23,12 +23,12 @@ export type TClientData = {
 export type RootStackParamList = {
   Home: undefined;
 	ClientPage: {
-		_id: number | undefined
+		_id: string | undefined
 	};
 	RegisterPlan: undefined;
 	UpdatePayment: undefined;
   Register: {
     isEditMode: boolean | undefined;
-    _id: number | undefined;
+    _id: string;
   };
 };

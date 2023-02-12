@@ -1,9 +1,9 @@
 import { ObjectSchema } from 'realm'
 
 const ClientsSchema: ObjectSchema = {
-	name: 'Clients6',
+	name: 'Clients7',
 	properties: {
-		_id: 'int',
+		_id: 'string',
 		status: 'string?',
 		name: 'string',
 		user: 'string',
