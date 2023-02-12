@@ -1,29 +1,34 @@
 import { ObjectSchema } from 'realm'
 
 const ClientsSchema: ObjectSchema = {
-	name: 'Clients7',
+	name: 'ClientsSchema',
 	properties: {
 		_id: 'string',
-		status: 'string?',
+		primaryKey: 'string',
+		created_at: 'date',
 		name: 'string',
 		user: 'string',
 		pass: 'string',
+		whatsapp: 'string?',
 		plan: 'string?',
 		server: 'string?',
 		app: 'string?',
-		paymentMethod: 'string?',
+		device: 'string?',
 		paymentPerson: 'string?',
 		activationDate: 'string?',
-		lastPayment: 'string?',
-		daysLeft: { type: 'int', default: 0 },
-		device: 'string?',
-		whatsapp: 'string?',
-		totalValue: { type: 'int', default: 0 },
-		creditedValue: { type: 'int', default: 0 },
-		profitValue: { type: 'int', default: 0 },
-		created_at: 'date'
+		expirationDate: 'date?',
+		creditHistory: 'string<>?',
+		paymentHistory: 'PaymentHistorySchema<>?'
 	},
 	primaryKey: '_id'
 }
 
-export default ClientsSchema
+const PaymentHistorySchema: ObjectSchema = {
+	name: 'PaymentHistorySchema',
+	properties: {
+		price: 'int',
+		date: 'date',
+		method: 'string'
+	}
+}
+export {ClientsSchema, PaymentHistorySchema}

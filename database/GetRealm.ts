@@ -1,8 +1,8 @@
 import Realm from 'realm'
-import ClientsSchema from './ClientsSchema'
+import {ClientsSchema, PaymentHistorySchema} from './ClientsSchema'
 
 export const GetRealm = async () =>
 	await Realm.open({
-		path: 'clientsDb_path2',
-		schema: [ClientsSchema],
+		path: 'clientsDb_1',
+		schema: [ClientsSchema, PaymentHistorySchema],
 	})

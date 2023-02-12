@@ -70,6 +70,7 @@
 	- Servidor
 	- Aplicativo
 	- Data de ativação
+	- Preço do plano
 
 - Info de Pagamento
 	- Metodo de pagamento
@@ -78,6 +79,8 @@
 	- Data de Expiração
 	- Dias restantes
 	- Valor total
+	- Hitorico de credito
+		- Tela com todo historico de pagamento
 	- Historico de pagamento
 		- Tela com todo historico de pagamento
 	- Lucro total
@@ -91,18 +94,24 @@
 - array de cliente
 	- cliente
 		- id
+		- primaryKey
+		- data do cadastro
 		- nome
 		- user
-		- senha
+		- senhas
 		- status
-		- data do cadastro
+		- whatsapp
 		- plano
 		- servidor
 		- app
-		- data da ativação
+		- aparelho
 		- nome do pagante
+		- data da ativação
 		- data de expiração
+		- array historico de credito
+			- valor
 		- array de pagamento
 			- valor
 			- data
 			- metodo
+		- preço do plano
