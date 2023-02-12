@@ -19,3 +19,16 @@ export type TClientData = {
 	profitValue?: number;
 	created_at: Date
 }
+
+export type RootStackParamList = {
+  Home: undefined;
+	ClientPage: {
+		_id: number | undefined
+	};
+	RegisterPlan: undefined;
+	UpdatePayment: undefined;
+  Register: {
+    isEditMode: boolean | undefined;
+    _id: number | undefined;
+  };
+};
