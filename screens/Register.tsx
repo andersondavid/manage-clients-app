@@ -29,33 +29,37 @@ const plansEnums = [
 type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export default function Register({ navigation, route }: RouterProps) {
+
+	//EDIT MODE Pegar parametros da rota, principalmente _id e isEditMode
 	const params = route.params
-
+	//EDIT MODE State para valores default e para popular os campos no edit mode
 	const [clientValues, setClientValues] = useState<any | TClientData>()
-	console.log('clientValues', clientValues)
-
+	// AMBOS hook obrigatorio para usar o form e preencher os valores default
 	const { ...methods } = useForm({
 		defaultValues: {
 			_id: clientValues?._id,
 			...clientValues
 		}
 	})
-
+	
+	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
 	const loadClient = async (_id: string) => {
 		getClientFromDatebase(_id)
 			.then((data) => setClientValues(data))
 			.catch(err => console.log('Erro ao carregar cliente para edição', err))
 	}
 
+	//EDIT MODE  Checa se estar no edit mode e usar o _id vindo dos parametros para buscar dados do cliente
 	useEffect(() => {
 		if (params?.isEditMode) {
-			console.log('params:', params)
+			// chama a funcão para buscar dados do cliente
 			loadClient(params?._id)
 		} else {
-			console.log('nada de id')
+			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros')
 		}
 	}, [])
 
+	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		writeClient(data as TClientData)
 			.then(data => {
@@ -65,7 +69,7 @@ export default function Register({ navigation, route }: RouterProps) {
 			})
 			.catch((error) => {Alert.alert('Erro', 'houve algum erro durante a operação.'); console.log(error)})
 	}
-
+	// AMBOS Se os campos estiverem preenchidos incorretamente, indica quais campos não foram preenchidos
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
 		const missingRequiredFields: string[] = Object.keys(errors)
 		const FieldsName: { [property: string]: string } = {
@@ -74,12 +78,10 @@ export default function Register({ navigation, route }: RouterProps) {
 			user: 'Usuario',
 			pass: 'Senha'
 		}
-
 		Alert.alert(
 			'Campos Obrigatorios Faltantes',
 			missingRequiredFields.flatMap((field): string => `${FieldsName[field]} é obrigatorio`).join('\n')
 		)
-		return null
 	}
 
 	return (
@@ -173,8 +175,6 @@ export default function Register({ navigation, route }: RouterProps) {
 						</View>
 					</Pressable>
 				</View>
-
-
 			</ScrollView>
 		</View>
 	)
