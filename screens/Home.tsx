@@ -23,7 +23,7 @@ export default function Home({ navigation }: RouterProps) {
 		const realm = await GetRealm()
 		try {
 			const response = realm
-				.objects<TClientData[]>('Clients6')
+				.objects<TClientData[]>('Clients7')
 				.sorted('created_at')
 				.toJSON()
 
@@ -82,7 +82,7 @@ export default function Home({ navigation }: RouterProps) {
 					<Pressable
 						key={client._id}
 						onPressIn={() =>
-							navigation.navigate('ClientPage', { id: client._id })
+							navigation.navigate('ClientPage', { _id: client._id })
 						}
 					>
 						<ListItemClient clientData={client} />
