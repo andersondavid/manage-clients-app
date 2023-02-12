@@ -5,7 +5,8 @@ import { TextInputEl } from '../components/TextInputEl'
 import { writeClient } from '../database/DatabaseActions'
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
-import { NavigationProp } from '@react-navigation/native'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { RootStackParamList } from '../types'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -23,22 +24,28 @@ const plansEnums = [
 	{ value: 'dual_screen', text: '2 TELAS' },
 ]
 
-interface RouterProps {
-	navigation: NavigationProp<any, 'Register'>;
-}
+type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 
-export default function RegisterForm({ navigation }: RouterProps) {
+export default function Register({ navigation, route }: RouterProps) {
+
+	const params = route.params
+
+	if(params.isEditMode) {
+		console.log('params:', params)
+	}
+	
 
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		data._id = parseInt(data._id)
 		writeClient(data as TClientData)
 			.then(data => {
-				Alert.alert('Sucesso', `Cliente ${data?.name} cadastrado.`)
-				navigation.navigate('ClientPage', { id: data?._id })
+				Alert.alert('Sucesso', `Cliente ${data?.name} cadastrado.`, [
+					{ text: 'Abrir Cliente', onPress: () => navigation.navigate('ClientPage', { _id: data?._id }) }
+				])
 			})
-			.catch(err => Alert.alert('Erro', 'houve algum erro durante a operação.'))
+			.catch(() => Alert.alert('Erro', 'houve algum erro durante a operação.'))
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
