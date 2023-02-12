@@ -33,7 +33,7 @@ export default function ClientPage({ route, navigation }: any) {
 		navigation.setOptions({
 			headerRight: () => (
 				<Pressable
-					onPress={() => navigation.navigate('Register', { id: currentClientID })}
+					onPress={() => navigation.navigate('Register', { _id: currentClientID, editMode: true })}
 				>
 					<Icon name="create" size={22} color="white" />
 				</Pressable >
