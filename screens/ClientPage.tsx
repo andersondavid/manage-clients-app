@@ -7,7 +7,7 @@ import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
 export default function ClientPage({ route, navigation }: any) {
-	const currentClientID = route.params._id
+	const currentClientID = route.params.primaryKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
 
 	const {
@@ -18,18 +18,17 @@ export default function ClientPage({ route, navigation }: any) {
 		pass,
 		plan,
 		server,
-		paymentMethod,
 		activationDate,
-		lastPayment,
-		daysLeft,
 		device,
 		whatsapp,
-		totalValue,
-		creditedValue,
-		profitValue,
 		paymentPerson,
 		created_at,
-		app
+		app,
+		planPrice,
+		primaryKey,
+		creditHistory,
+		expirationDate,
+		paymentHistory
 	}: TClientData = clientData
 
 	const removeClient = () => {
@@ -52,7 +51,7 @@ export default function ClientPage({ route, navigation }: any) {
 		navigation.setOptions({
 			headerRight: () => (
 				<Pressable
-					onPress={() => navigation.navigate('Register', { _id: currentClientID, isEditMode: true })}
+					onPress={() => navigation.navigate('Register', { primaryKey: currentClientID, isEditMode: true })}
 				>
 					<Icon name="create" size={22} color="white" />
 				</Pressable >
@@ -111,6 +110,10 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>{status}</Text>
 				</View>
 				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Preço do Plano</Text>
+					<Text style={styles.itemClient}>{planPrice}</Text>
+				</View>
+				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Aparelho</Text>
 					<Text style={styles.itemClient}>{device}</Text>
 				</View>
@@ -126,6 +129,10 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>Data da Ativação</Text>
 					<Text style={styles.itemClient}>{activationDate && formatDate(activationDate)}</Text>
 				</View>
+				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Expira em</Text>
+					<Text style={styles.itemClient}>{expirationDate && formatDate(expirationDate)}</Text>
+				</View>
 
 				<View style={styles.itemHeader}>
 					<Text style={styles.itemHeaderText}>Status do Pagamento</Text>
@@ -133,30 +140,6 @@ export default function ClientPage({ route, navigation }: any) {
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Nome do Pagador</Text>
 					<Text style={styles.itemClient}>{paymentPerson}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Meio de Pagamento</Text>
-					<Text style={styles.itemClient}>{paymentMethod}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Ultimo Pagamento</Text>
-					<Text style={styles.itemClient}>{lastPayment && formatDate(lastPayment)}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Dias Restantes</Text>
-					<Text style={styles.itemClient}>{daysLeft}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Valor Total</Text>
-					<Text style={styles.itemClient}>{totalValue}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Valor Creditado</Text>
-					<Text style={styles.itemClient}>{creditedValue}</Text>
-				</View>
-				<View style={styles.itensContainer}>
-					<Text style={styles.itemClient}>Lucro</Text>
-					<Text style={styles.itemClient}>{profitValue}</Text>
 				</View>
 				<View style={[styles.form, styles.formLoad]}>
 					<Pressable onPress={() => navigation.navigate('UpdatePayment')}>
