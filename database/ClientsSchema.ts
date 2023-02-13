@@ -9,18 +9,20 @@ const ClientsSchema: ObjectSchema = {
 		name: 'string',
 		user: 'string',
 		pass: 'string',
+		status: 'string?',
 		whatsapp: 'string?',
-		plan: 'string?',
-		server: 'string?',
-		app: 'string?',
-		device: 'string?',
+		plan: 'string',
+		planPrice: 'string',
+		server: 'string',
+		app: 'string',
+		device: 'string',
 		paymentPerson: 'string?',
-		activationDate: 'string?',
+		activationDate: 'date?',
 		expirationDate: 'date?',
-		creditHistory: 'string<>?',
-		paymentHistory: 'PaymentHistorySchema<>?'
+		creditHistory: 'string<>',
+		paymentHistory: 'PaymentHistorySchema<>'
 	},
-	primaryKey: '_id'
+	primaryKey: 'primaryKey',
 }
 
 const PaymentHistorySchema: ObjectSchema = {
