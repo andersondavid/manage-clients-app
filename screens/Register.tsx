@@ -1,13 +1,14 @@
 import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-native'
 import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { rand } from '@jsweb/randkey'
 
 import { TextInputEl } from '../components/TextInputEl'
 import { getClientFromDatebase, writeClient } from '../database/DatabaseActions'
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
-import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { RootStackParamList } from '../types'
-import { useEffect, useState } from 'react'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -25,6 +26,26 @@ const plansEnums = [
 	{ value: 'dual_screen', text: '2 TELAS' },
 ]
 
+const initialValues = {
+	_id: '',
+	primaryKey: rand(36),
+	created_at: new Date(),
+	name: '',
+	user: '',
+	pass: '',
+	status: '',
+	whatsapp: '',
+	plan: 'sigle_screen',
+	planPrice: '',
+	server: '',
+	app: '',
+	device: 'smarttv',
+	paymentPerson: '',
+	activationDate: new Date(),
+	expirationDate: new Date(),
+	creditHistory: [],
+	paymentHistory: []
+}
 
 type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
@@ -33,19 +54,18 @@ export default function Register({ navigation, route }: RouterProps) {
 	//EDIT MODE Pegar parametros da rota, principalmente _id e isEditMode
 	const params = route.params
 	//EDIT MODE State para valores default e para popular os campos no edit mode
-	const [clientValues, setClientValues] = useState<any | TClientData>()
+	const [clientValues, setClientValues] = useState<TClientData | any>(initialValues)
 	// AMBOS hook obrigatorio para usar o form e preencher os valores default
 	const { ...methods } = useForm({
-		defaultValues: {
-			_id: clientValues?._id,
-			...clientValues
-		}
+		values: clientValues
 	})
-	
+
 	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
-	const loadClient = async (_id: string) => {
-		getClientFromDatebase(_id)
-			.then((data) => setClientValues(data))
+	const loadClient = async (primaryKey: string) => {
+		getClientFromDatebase(primaryKey)
+			.then((data) => {
+				setClientValues(data)
+			})
 			.catch(err => console.log('Erro ao carregar cliente para edição', err))
 	}
 
@@ -53,30 +73,45 @@ export default function Register({ navigation, route }: RouterProps) {
 	useEffect(() => {
 		if (params?.isEditMode) {
 			// chama a funcão para buscar dados do cliente
-			loadClient(params?._id)
+			loadClient(params?.primaryKey)
+			navigation.setOptions({ title: 'Editar Cliente' })
 		} else {
-			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros')
+			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros\n')
 		}
 	}, [])
 
+	// AMBOS confirmação de cadastro/atualização
+	const updateCreateClientAlert = (data: TClientData | undefined) => {
+		Alert.alert('Sucesso', `Cliente ${data?.name} ${params?.isEditMode ? 'atualizado' : 'cadastrado'}`, [
+			{ text: 'Abrir Cliente', onPress: () => navigation.navigate('ClientPage', { primaryKey: data?.primaryKey }) }
+		])
+	}
 	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		writeClient(data as TClientData)
-			.then(data => {
-				Alert.alert('Sucesso', `Cliente ${data?.name} ${params?.isEditMode ? 'atualizado' : 'cadastrado'}`, [
-					{ text: 'Abrir Cliente', onPress: () => navigation.navigate('ClientPage', { _id: data?._id }) }
-				])
-			})
-			.catch((error) => {Alert.alert('Erro', 'houve algum erro durante a operação.'); console.log(error)})
+		if (!params?.isEditMode) {
+			writeClient(data as TClientData)
+				.then(data => updateCreateClientAlert(data))
+				.catch((error) => { Alert.alert('Erro', 'houve algum erro durante a operação.'); console.log(error) })
+		} else if (params?.isEditMode) {
+			console.log('*************************************')
+			console.log('EDIT MODE ', data)
+		}
 	}
 	// AMBOS Se os campos estiverem preenchidos incorretamente, indica quais campos não foram preenchidos
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
 		const missingRequiredFields: string[] = Object.keys(errors)
 		const FieldsName: { [property: string]: string } = {
-			id: 'ID',
+			_id: 'ID',
 			name: 'Nome',
 			user: 'Usuario',
-			pass: 'Senha'
+			pass: 'Senha',
+			whatsapp: 'WhatsApp',
+			plan: 'Plano',
+			planPrice: 'Preço do Plano',
+			server: 'Servidor',
+			app: 'Aplicativo',
+			device: 'Aparelho',
+			paymentPerson: 'Pagante',
 		}
 		Alert.alert(
 			'Campos Obrigatorios Faltantes',
@@ -91,7 +126,6 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'ID'}
 						name={'_id'}
-						defaultValue={clientValues?._id}
 						placeholder={'1, 2, 3, ...'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
@@ -99,14 +133,12 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Nome'}
 						name={'name'}
-						defaultValue={clientValues?.name}
 						placeholder={'Flavio'}
 						keyboardType={'default'}
 						rules={{ required: 'ID is required!' }}
 					/>
 					<TextInputEl
 						label={'Usuario'}
-						defaultValue={clientValues?.user}
 						name={'user'}
 						placeholder={'flavio01'}
 						keyboardType={'default'}
@@ -115,7 +147,6 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Senha'}
 						name={'pass'}
-						defaultValue={clientValues?.pass}
 						placeholder={'senha123'}
 						keyboardType={'default'}
 						rules={{ required: 'Senha is required!' }}
@@ -123,46 +154,48 @@ export default function Register({ navigation, route }: RouterProps) {
 					<TextInputEl
 						label={'Servidor'}
 						name={'server'}
-						defaultValue={clientValues?.server}
 						placeholder={'http://...'}
 						keyboardType={'default'}
+						rules={{ required: 'Servidor is required!' }}
 					/>
 					<PickerEl
 						label={'Plano'}
 						name={'plan'}
-						defaultValue={clientValues?.plan}
 						options={plansEnums}
 						value={'sigle_screen'}
-						rules={{ required: false }}
+						rules={{ required: 'Plano is required!' }}
+					/>
+					<TextInputEl
+						label={'Valor do Plano'}
+						name={'planPrice'}
+						placeholder={'R$ 0,00'}
+						keyboardType={'default'}
+						rules={{ required: 'Valor do Plano is required!' }}
 					/>
 					<TextInputEl
 						label={'Nome do pagante'}
 						name={'paymentPerson'}
-						defaultValue={clientValues?.paymentPerson}
 						placeholder={'Flavio ...'}
 						keyboardType={'default'}
-						rules={{ required: false }}
+						rules={{ required: 'Nome do pagante is required!' }}
 					/>
 					<PickerEl
 						label={'Dispositivo'}
 						name={'device'}
-						defaultValue={clientValues?.device}
 						options={devicesEnums}
 						value={'smarttv'}
-						rules={{ required: false }}
+						rules={{ required: 'Dispositivo is required!' }}
 					/>
 					<TextInputEl
 						label={'Aplicativo'}
 						name={'app'}
-						defaultValue={clientValues?.app}
 						placeholder={'IP Tv'}
 						keyboardType={'default'}
-						rules={{ required: false }}
+						rules={{ required: 'Aplicativo is required!' }}
 					/>
 					<TextInputEl
 						label={'WhatsApp'}
 						name={'whatsapp'}
-						defaultValue={clientValues?.whatsapp}
 						placeholder={'99 98765-4231'}
 						keyboardType={'default'}
 						rules={{ required: false }}
