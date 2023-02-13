@@ -20,6 +20,7 @@
 - Senha
 - Servidor
 - Plano
+- Valor do plano
 - Nome do pagador
 - Dispositivo
 - Aplicativo
@@ -102,6 +103,7 @@
 		- status
 		- whatsapp
 		- plano
+		- preço do plano
 		- servidor
 		- app
 		- aparelho
@@ -114,4 +116,3 @@
 			- valor
 			- data
 			- metodo
-		- preço do plano
