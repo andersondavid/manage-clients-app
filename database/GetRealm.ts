@@ -5,4 +5,5 @@ export const GetRealm = async () =>
 	await Realm.open({
 		path: 'clientsDb_1',
 		schema: [ClientsSchema, PaymentHistorySchema],
+		schemaVersion: 2
 	})

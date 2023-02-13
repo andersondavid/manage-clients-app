@@ -8,7 +8,7 @@ export const writeClient = async (data: TClientData): Promise<TClientData | unde
 
 	try {
 		realm.write(() => {
-			result = realm.create('Clients7', data)
+			result = realm.create('ClientsSchema', data)
 				.toJSON()
 		})
 	} catch (error) {
@@ -23,7 +23,7 @@ export const getClientFromDatebase = async (selectedId: string) => {
 	const realm = await GetRealm()
 	try {
 		const response = realm
-			.objectForPrimaryKey('Clients7', selectedId)
+			.objectForPrimaryKey('ClientsSchema', selectedId)
 			?.toJSON()
 
 		realm.close()
