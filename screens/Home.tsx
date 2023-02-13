@@ -23,7 +23,7 @@ export default function Home({ navigation }: RouterProps) {
 		const realm = await GetRealm()
 		try {
 			const response = realm
-				.objects<TClientData[]>('Clients7')
+				.objects<TClientData[]>('ClientsSchema')
 				.sorted('created_at')
 				.toJSON()
 
@@ -80,9 +80,9 @@ export default function Home({ navigation }: RouterProps) {
 			<ScrollView>
 				{clientState.map(client => (
 					<Pressable
-						key={client._id}
+						key={client.primaryKey}
 						onPressIn={() =>
-							navigation.navigate('ClientPage', { _id: client._id })
+							navigation.navigate('ClientPage', { primaryKey: client.primaryKey })
 						}
 					>
 						<ListItemClient clientData={client} />
