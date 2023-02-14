@@ -15,8 +15,8 @@ export type TClientData = {
 	paymentPerson?: string;
 	activationDate?: Date;
 	expirationDate?: Date;
-	creditHistory?: number[];
-	paymentHistory?: TPaymentHistory[]
+	creditHistory: number[];
+	paymentHistory: TPaymentHistory[]
 }
 
 type TPaymentHistory = {
