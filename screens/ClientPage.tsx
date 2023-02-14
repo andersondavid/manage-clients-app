@@ -1,10 +1,49 @@
 import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
-import { TClientData } from '../types'
+import { TClientData, TPaymentHistory } from '../types'
 import { useEffect, useState } from 'react'
 import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+
+const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
+	const { paymentHistory } = props
+	return (
+		<View>
+			{paymentHistory.map((item, index) => {
+				return (
+					<View key={index} style={styles.itensContainer}>
+						<Text style={styles.itemClient}>{item.price}</Text>
+						<Text style={styles.itemClient}>{formatDate(item.date)}</Text>
+						<Text style={styles.itemClient}>{item.method}</Text>
+					</View>
+				)
+			})}
+		</View>
+	)
+}
+const CreditHistoryTable = (props: {
+	paymentHistory: TPaymentHistory[]
+	creditHistory: number[]
+}) => {
+	const { paymentHistory, creditHistory } = props
+
+	return (
+		<View>
+			{paymentHistory.map((item, index) => {
+				return (
+					<View key={index} style={styles.itensContainer}>
+						<Text style={styles.itemClient}>{item.price}</Text>
+						<Text style={styles.itemClient}>{creditHistory[index]}</Text>
+						<Text style={styles.itemClient}>
+							{item.price - creditHistory[index]}
+						</Text>
+					</View>
+				)
+			})}
+		</View>
+	)
+}
 
 export default function ClientPage({ route, navigation }: any) {
 	const currentClientID = route.params.primaryKey
@@ -28,7 +67,7 @@ export default function ClientPage({ route, navigation }: any) {
 		primaryKey,
 		creditHistory,
 		expirationDate,
-		paymentHistory
+		paymentHistory,
 	}: TClientData = clientData
 
 	const removeClient = () => {
@@ -51,20 +90,25 @@ export default function ClientPage({ route, navigation }: any) {
 		navigation.setOptions({
 			headerRight: () => (
 				<Pressable
-					onPress={() => navigation.navigate('Register', { primaryKey: currentClientID, isEditMode: true })}
+					onPress={() =>
+						navigation.navigate('Register', {
+							primaryKey: currentClientID,
+							isEditMode: true,
+						})
+					}
 				>
 					<Icon name="create" size={22} color="white" />
-				</Pressable >
+				</Pressable>
 			),
 		})
 	}
-	
+
 	useEffect(() => {
 		const loadClient = async () => {
 			const clientData = await getClientFromDatebase(currentClientID)
 			setClientData(clientData)
-			
-		}; loadClient()
+		}
+		loadClient()
 
 		setNavigationOptions()
 	}, [])
@@ -94,7 +138,9 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Cadastrado em </Text>
-					<Text style={styles.itemClient}>{created_at && formatDate(created_at)}</Text>
+					<Text style={styles.itemClient}>
+						{created_at && formatDate(created_at)}
+					</Text>
 				</View>
 
 				<View style={styles.itemHeader}>
@@ -127,11 +173,15 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Data da Ativação</Text>
-					<Text style={styles.itemClient}>{activationDate && formatDate(activationDate)}</Text>
+					<Text style={styles.itemClient}>
+						{activationDate && formatDate(activationDate)}
+					</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Expira em</Text>
-					<Text style={styles.itemClient}>{expirationDate && formatDate(expirationDate)}</Text>
+					<Text style={styles.itemClient}>
+						{expirationDate && formatDate(expirationDate)}
+					</Text>
 				</View>
 
 				<View style={styles.itemHeader}>
@@ -141,10 +191,52 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={styles.itemClient}>Nome do Pagador</Text>
 					<Text style={styles.itemClient}>{paymentPerson}</Text>
 				</View>
+
+				<View style={styles.itemHeader}>
+					<Text style={styles.itemHeaderText}>Histórico de Pagamento</Text>
+				</View>
+
+				<View style={styles.itensContainer}>
+					<Text style={[styles.itemClient, styles.textBold]}>Valor</Text>
+					<Text style={[styles.itemClient, styles.textBold]}>Data</Text>
+					<Text style={[styles.itemClient, styles.textBold]}>Metodo</Text>
+				</View>
+
+				{paymentHistory.length > 0 ? (
+					<PaymentHistoryTable paymentHistory={paymentHistory} />
+				) : (
+					<View style={styles.itensContainer}>
+						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
+					</View>
+				)}
+
+				<View style={styles.itemHeader}>
+					<Text style={styles.itemHeaderText}>Histórico de Credito</Text>
+				</View>
+
+				<View style={styles.itensContainer}>
+					<Text style={[styles.itemClient, styles.textBold]}>Pagos</Text>
+					<Text style={[styles.itemClient, styles.textBold]}>Creditos</Text>
+					<Text style={[styles.itemClient, styles.textBold]}>Lucro</Text>
+				</View>
+
+				{paymentHistory.length > 0 ? (
+					<CreditHistoryTable
+						paymentHistory={paymentHistory}
+						creditHistory={creditHistory}
+					/>
+				) : (
+					<View style={styles.itensContainer}>
+						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
+					</View>
+				)}
+
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={() => navigation.navigate('UpdatePayment')}>
+					<Pressable onPress={() => navigation.navigate('UpdatePayment', {
+						primaryKey: currentClientID,
+					})}>
 						<View style={styles.squareBtn}>
-							<Text style={styles.textBtn}>ATUALIZAR</Text>
+							<Text style={styles.textBtn}>ATUALIZAR PAGAMENTO</Text>
 						</View>
 					</Pressable>
 				</View>
@@ -181,8 +273,10 @@ const styles = StyleSheet.create({
 	itemHeaderText: {
 		fontSize: 16,
 		color: '#fff',
-		backgroundColor: '#2233FF',
 		textAlign: 'center',
+	},
+	textBold: {
+		fontWeight: 'bold',
 	},
 	itensContainer: {
 		paddingHorizontal: 12,
@@ -199,7 +293,7 @@ const styles = StyleSheet.create({
 	form: {
 		flex: 1,
 		padding: 16,
-		paddingBottom: 0
+		paddingBottom: 0,
 	},
 	formLoad: {
 		flexDirection: 'row',
