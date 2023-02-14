@@ -233,7 +233,7 @@ export default function ClientPage({ route, navigation }: any) {
 
 				<View style={[styles.form, styles.formLoad]}>
 					<Pressable onPress={() => navigation.navigate('UpdatePayment', {
-						primaryKey: currentClientID,
+						primaryKey,
 					})}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>ATUALIZAR PAGAMENTO</Text>
