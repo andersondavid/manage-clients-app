@@ -6,8 +6,11 @@ import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
-	const { paymentHistory } = props
+const PaymentHistoryTable = (props: {
+	paymentHistory: TPaymentHistory[]
+	creditHistory: number[]
+}) => {
+	const { paymentHistory, creditHistory } = props
 	return (
 		<View>
 			{paymentHistory.map((item, index) => {
@@ -16,25 +19,6 @@ const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
 						<Text style={styles.itemClient}>{item.price}</Text>
 						<Text style={styles.itemClient}>{formatDate(item.date)}</Text>
 						<Text style={styles.itemClient}>{item.method}</Text>
-					</View>
-				)
-			})}
-		</View>
-	)
-}
-const CreditHistoryTable = (props: {
-	paymentHistory: TPaymentHistory[]
-	creditHistory: number[]
-}) => {
-	const { paymentHistory, creditHistory } = props
-
-	return (
-		<View>
-			{paymentHistory.map((item, index) => {
-				return (
-					<View key={index} style={styles.itensContainer}>
-						<Text style={styles.itemClient}>{item.price}</Text>
-						<Text style={styles.itemClient}>{creditHistory[index]}</Text>
 						<Text style={styles.itemClient}>
 							{item.price - creditHistory[index]}
 						</Text>
@@ -48,6 +32,9 @@ const CreditHistoryTable = (props: {
 export default function ClientPage({ route, navigation }: any) {
 	const currentClientID = route.params.primaryKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
+
+	console.log('clientData	', clientData)
+	
 
 	const {
 		_id,
@@ -67,7 +54,7 @@ export default function ClientPage({ route, navigation }: any) {
 		primaryKey,
 		creditHistory,
 		expirationDate,
-		paymentHistory,
+		paymentHistory = [],
 	}: TClientData = clientData
 
 	const removeClient = () => {
@@ -105,8 +92,10 @@ export default function ClientPage({ route, navigation }: any) {
 
 	useEffect(() => {
 		const loadClient = async () => {
-			const clientData = await getClientFromDatebase(currentClientID)
-			setClientData(clientData)
+			const clientDataResult = await getClientFromDatebase(currentClientID)
+			console.log('clientData', clientDataResult)
+			
+			setClientData(clientDataResult)
 		}
 		loadClient()
 
@@ -200,31 +189,13 @@ export default function ClientPage({ route, navigation }: any) {
 					<Text style={[styles.itemClient, styles.textBold]}>Valor</Text>
 					<Text style={[styles.itemClient, styles.textBold]}>Data</Text>
 					<Text style={[styles.itemClient, styles.textBold]}>Metodo</Text>
-				</View>
-
-				{paymentHistory.length > 0 ? (
-					<PaymentHistoryTable paymentHistory={paymentHistory} />
-				) : (
-					<View style={styles.itensContainer}>
-						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
-					</View>
-				)}
-
-				<View style={styles.itemHeader}>
-					<Text style={styles.itemHeaderText}>Histórico de Credito</Text>
-				</View>
-
-				<View style={styles.itensContainer}>
-					<Text style={[styles.itemClient, styles.textBold]}>Pagos</Text>
-					<Text style={[styles.itemClient, styles.textBold]}>Creditos</Text>
 					<Text style={[styles.itemClient, styles.textBold]}>Lucro</Text>
 				</View>
 
-				{paymentHistory.length > 0 ? (
-					<CreditHistoryTable
+				{paymentHistory.length != 0 ? (
+					<PaymentHistoryTable
 						paymentHistory={paymentHistory}
-						creditHistory={creditHistory}
-					/>
+						creditHistory={creditHistory} />
 				) : (
 					<View style={styles.itensContainer}>
 						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
