@@ -14,7 +14,7 @@ export const writeClient = async (data: TClientData): Promise<TClientData | unde
 	} catch (error) {
 		console.error(error)
 	}
-	
+
 	realm.close()
 	return result
 }
@@ -32,5 +32,25 @@ export const getClientFromDatebase = async (selectedId: string) => {
 
 	} catch (error) {
 		console.error(error)
+		realm.close()
 	}
+}
+
+export const updatePayment = async (selectedId: string, data: any) => {
+	const realm = await GetRealm()
+	try {
+		const response: { paymentHistory: Set<TClientData> } | null = realm
+			.objectForPrimaryKey('ClientsSchema', selectedId)
+		if (response) {
+			realm.write(() => {
+				response.paymentHistory.add({...data.dataFromForm, price: parseInt(data.dataFromForm.price)})
+			})
+		}
+		realm.close()
+		return response
+	} catch (error) {
+		console.error(error)
+		realm.close()
+	}
+
 }
