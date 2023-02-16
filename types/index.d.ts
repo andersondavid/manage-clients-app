@@ -31,7 +31,9 @@ export type RootStackParamList = {
 		primaryKey: string | undefined
 	};
 	RegisterPlan: undefined;
-	UpdatePayment: undefined;
+	UpdatePayment: {
+    primaryKey: string;
+  };
   Register: {
     isEditMode: boolean | undefined;
     primaryKey: string;
