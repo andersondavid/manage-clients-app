@@ -48,10 +48,10 @@
 ## Atualizar pagamento
 
 ### Campos
-- Forma de pagamento
 - Valor do pagamento
 - Data do pagamento
-- Dias restantes
+- Metodo de pagamento
+- Data de Vecimento
 ### Campos
 - Salvar
 - Cancelar
