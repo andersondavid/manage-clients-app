@@ -2,9 +2,10 @@ import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-nati
 import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
 
 import { TextInputEl } from '../components/TextInputEl'
-import { writeClient } from '../database/DatabaseActions'
-import { TClientData } from '../types'
+import { updatePayment } from '../database/DatabaseActions'
+import { RootStackParamList, TPaymentHistory } from '../types'
 import { PickerEl } from '../components/PickerEl'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 const paymentMethods = [
 	{
@@ -13,37 +14,40 @@ const paymentMethods = [
 	},
 	{
 		text: 'Especie',
-		value: 'especie'
+		value: 'money'
 	},
 	{
-		text: 'Transferencia',
-		value: 'transfer'
+		text: 'Boleto',
+		value: 'boleto'
 	}
 ]
 
-const plansEnums = [
-	{ value: 'sigle_screen', text: '1 TELA' },
-	{ value: 'dual_screen', text: '2 TELAS' },
-]
+type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
-
-export default function UpdatePayment() {
+export default function UpdatePayment({ route }: RouterProps) {
+	const currentClientID = route.params.primaryKey
 
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
-		data._id = parseInt(data._id)
-		writeClient(data as TClientData)
-			.then(data => Alert.alert('Sucesso', `Cliente ${data?.name} cadastrado.`))
+		const dataFromForm: TPaymentHistory = {
+			price: data.getPaymentValue,
+			method: data.getPaymentMethod,
+			date: data.getPaymentDate,
+		}
+
+		const dataToUpdate = { dataFromForm, expirationDate: data.expirationDate }
+		updatePayment(currentClientID, dataToUpdate)
+			.then(data => Alert.alert('Sucesso', 'Pagamento registrado.'))
 			.catch(err => Alert.alert('Erro', 'houve algum erro durante a operação.'))
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
 		const missingRequiredFields: string[] = Object.keys(errors)
 		const FieldsName: { [property: string]: string } = {
-			id: 'ID',
-			name: 'Nome',
-			user: 'Usuario',
-			pass: 'Senha'
+			getPaymentValue: 'Valor',
+			getPaymentMethod: 'Metodo de Pagamento',
+			getPaymentDate: 'Data do Pagamento',
+			expirationDate: 'Data do Vencimento'
 		}
 
 		Alert.alert(
@@ -58,66 +62,32 @@ export default function UpdatePayment() {
 			<ScrollView>
 				<FormProvider {...methods}>
 					<TextInputEl
-						label={'Nome'}
-						name={'name'}
-						placeholder={'Flavio'}
-						keyboardType={'default'}
-						rules={{ required: 'ID is required!' }}
+						label={'Valor'}
+						name={'getPaymentValue'}
+						placeholder={'R$ 20,00'}
+						keyboardType={'numeric'}
+						rules={{ required: true }}
+					/>
+					<PickerEl
+						label={'Metodo de Pagamento'}
+						name={'getPaymentMethod'}
+						options={paymentMethods}
+						value={'pix'}
+						rules={{ required: 'Metodo is required!' }}
 					/>
 					<TextInputEl
-						label={'Usuario'}
-						name={'user'}
-						placeholder={'flavio01'}
-						keyboardType={'default'}
-						rules={{ required: 'Usuario is required!' }}
-					/>
-					<TextInputEl
-						label={'Senha'}
-						name={'pass'}
-						placeholder={'senha123'}
+						label={'Data do Pagamento'}
+						name={'getPaymentDate'}
+						placeholder={'01/02/2023'}
 						keyboardType={'default'}
 						rules={{ required: 'Senha is required!' }}
 					/>
 					<TextInputEl
-						label={'Servidor'}
-						name={'server'}
-						placeholder={'http://...'}
+						label={'Data do Vencimento'}
+						name={'expirationDate'}
+						placeholder={'01/02/2023'}
 						keyboardType={'default'}
-					/>
-					<PickerEl
-						label={'Plano'}
-						name={'plan'}
-						options={plansEnums}
-						value={'sigle_screen'}
-						rules={{ required: false }}
-					/>
-					<TextInputEl
-						label={'Nome do pagante'}
-						name={'paymentPerson'}
-						placeholder={'Flavio ...'}
-						keyboardType={'default'}
-						rules={{ required: false }}
-					/>
-					<PickerEl
-						label={'Metodos de Pagamento'}
-						name={'device'}
-						options={paymentMethods}
-						value={'smarttv'}
-						rules={{ required: false }}
-					/>
-					<TextInputEl
-						label={'Aplicativo'}
-						name={'app'}
-						placeholder={'IP Tv'}
-						keyboardType={'default'}
-						rules={{ required: false }}
-					/>
-					<TextInputEl
-						label={'WhatsApp'}
-						name={'whatsapp'}
-						placeholder={'99 98765-4231'}
-						keyboardType={'default'}
-						rules={{ required: false }}
+						rules={{ required: 'Data do Pagamento is required!' }}
 					/>
 				</FormProvider>
 				<View style={[styles.form, styles.formLoad]}>
