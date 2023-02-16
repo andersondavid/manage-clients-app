@@ -1,44 +1,87 @@
-import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-native'
-import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
+import {
+	View,
+	StyleSheet,
+	Pressable,
+	Text,
+	Alert,
+	ScrollView,
+} from 'react-native'
+import {
+	useForm,
+	FormProvider,
+	SubmitHandler,
+	SubmitErrorHandler,
+	FieldValues,
+} from 'react-hook-form'
+import DatePicker from 'react-native-date-picker'
+import { useEffect, useState } from 'react'
 
 import { TextInputEl } from '../components/TextInputEl'
 import { updatePayment } from '../database/DatabaseActions'
 import { RootStackParamList, TPaymentHistory } from '../types'
-import { PickerEl } from '../components/PickerEl'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { formatDate } from '../utils/formatDate'
+import { PickerEl } from '../components/PickerEl'
 
 const paymentMethods = [
 	{
 		text: 'PIX',
-		value: 'pix'
+		value: 'pix',
 	},
 	{
 		text: 'Especie',
-		value: 'money'
+		value: 'money',
 	},
 	{
 		text: 'Boleto',
-		value: 'boleto'
-	}
+		value: 'boleto',
+	},
 ]
 
-type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
+type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
 
-export default function UpdatePayment({ route }: RouterProps) {
+export default function UpdatePayment({ navigation, route }: RouterProps) {
 	const currentClientID = route.params.primaryKey
+
+	const [paymentDay, setPaymentDay] = useState(new Date())
+	const [modalPaymentDay, setModalPaymentDay] = useState(false)
+
+	const [expireDay, setExpireDay] = useState(
+		new Date(new Date().setMonth(paymentDay.getMonth() + 1))
+	)
+	const [modalExpireDay, setModalExpireDay] = useState(false)
+
+	useEffect(() => {
+		setExpireDay(new Date(new Date().setMonth(paymentDay.getMonth() + 1)))
+	}, [paymentDay])
 
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		const dataFromForm: TPaymentHistory = {
-			price: data.getPaymentValue,
+			price: parseInt(data.getPaymentValue),
 			method: data.getPaymentMethod,
-			date: data.getPaymentDate,
+			date: paymentDay,
 		}
 
-		const dataToUpdate = { dataFromForm, expirationDate: data.expirationDate }
+		const dataToUpdate = {
+			dataFromForm,
+			expirationDate: expireDay,
+			creditHistory: data.getCreditValue,
+		}
+
 		updatePayment(currentClientID, dataToUpdate)
-			.then(data => Alert.alert('Sucesso', 'Pagamento registrado.'))
-			.catch(err => Alert.alert('Erro', 'houve algum erro durante a operação.'))
+			.then((data) =>
+				Alert.alert('Sucesso', 'Pagamento registrado.', [
+					{
+						text: 'Abrir Cliente',
+						onPress: () =>
+							navigation.goBack(),
+					},
+				])
+			)
+			.catch((err) =>
+				Alert.alert('Erro', 'houve algum erro durante a operação.')
+			)
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
@@ -47,12 +90,14 @@ export default function UpdatePayment({ route }: RouterProps) {
 			getPaymentValue: 'Valor',
 			getPaymentMethod: 'Metodo de Pagamento',
 			getPaymentDate: 'Data do Pagamento',
-			expirationDate: 'Data do Vencimento'
+			expirationDate: 'Data do Vencimento',
 		}
 
 		Alert.alert(
 			'Campos Obrigatorios Faltantes',
-			missingRequiredFields.flatMap((field): string => `${FieldsName[field]} é obrigatorio`).join('\n')
+			missingRequiredFields
+				.flatMap((field): string => `${FieldsName[field]} é obrigatorio`)
+				.join('\n')
 		)
 		return null
 	}
@@ -69,25 +114,34 @@ export default function UpdatePayment({ route }: RouterProps) {
 						rules={{ required: true }}
 					/>
 					<PickerEl
-						label={'Metodo de Pagamento'}
+						label={'Metodo'}
 						name={'getPaymentMethod'}
 						options={paymentMethods}
 						value={'pix'}
 						rules={{ required: 'Metodo is required!' }}
 					/>
+					<Text style={styles.formInputLabel}>Data do Pagamento</Text>
+					<Pressable
+						style={styles.formInputField}
+						onPress={() => setModalPaymentDay(true)}
+					>
+						<Text style={styles.buttonModalDate}>{formatDate(paymentDay)}</Text>
+					</Pressable>
+
+					<Text style={styles.formInputLabel}>Data do Vecimento</Text>
+					<Pressable
+						style={styles.formInputField}
+						onPress={() => setModalExpireDay(true)}
+					>
+						<Text style={styles.buttonModalDate}>{formatDate(expireDay)}</Text>
+					</Pressable>
+
 					<TextInputEl
-						label={'Data do Pagamento'}
-						name={'getPaymentDate'}
-						placeholder={'01/02/2023'}
-						keyboardType={'default'}
-						rules={{ required: 'Senha is required!' }}
-					/>
-					<TextInputEl
-						label={'Data do Vencimento'}
-						name={'expirationDate'}
-						placeholder={'01/02/2023'}
-						keyboardType={'default'}
-						rules={{ required: 'Data do Pagamento is required!' }}
+						label={'Credito'}
+						name={'getCreditValue'}
+						placeholder={'R$ 10,00'}
+						keyboardType={'numeric'}
+						rules={{ required: true }}
 					/>
 				</FormProvider>
 				<View style={[styles.form, styles.formLoad]}>
@@ -97,9 +151,35 @@ export default function UpdatePayment({ route }: RouterProps) {
 						</View>
 					</Pressable>
 				</View>
-
-
 			</ScrollView>
+			<DatePicker
+				modal
+				mode="date"
+				locale="pt-BR"
+				open={modalPaymentDay}
+				date={paymentDay}
+				onConfirm={(date) => {
+					setModalPaymentDay(false)
+					setPaymentDay(date)
+				}}
+				onCancel={() => {
+					setModalPaymentDay(false)
+				}}
+			/>
+			<DatePicker
+				modal
+				mode="date"
+				locale="pt-BR"
+				open={modalExpireDay}
+				date={expireDay}
+				onConfirm={(date) => {
+					setModalExpireDay(false)
+					setExpireDay(date)
+				}}
+				onCancel={() => {
+					setModalExpireDay(false)
+				}}
+			/>
 		</View>
 	)
 }
@@ -126,9 +206,26 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 		paddingHorizontal: 15,
 	},
+	formInputLabel: {
+		fontSize: 13,
+		color: '#aaa',
+		marginTop: 5,
+	},
 	textBtn: {
 		lineHeight: 18,
 		fontSize: 16,
+		color: '#fff',
+	},
+	formInputField: {
+		paddingVertical: 10,
+		paddingHorizontal: 10,
+		borderRadius: 5,
+		backgroundColor: '#3337',
+		width: '100%',
+	},
+	buttonModalDate: {
+		fontSize: 16,
+		lineHeight: 18,
 		color: '#fff',
 	},
 })
