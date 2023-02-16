@@ -1,5 +1,5 @@
 import { GetRealm } from './GetRealm'
-import { TClientData } from '../types'
+import { TClientData, TPaymentHistory } from '../types'
 
 export const writeClient = async (
 	data: TClientData
@@ -36,19 +36,22 @@ export const getClientFromDatebase = async (selectedId: string) => {
 	}
 }
 
-export const updatePayment = async (selectedId: string, data: any) => {
+type TDataToUpdate = {
+	expirationDate: Date,
+	dataFromForm: TPaymentHistory
+}
+
+export const updatePayment = async (selectedId: string, data: TDataToUpdate) => {
 	const realm = await GetRealm()
 	try {
 		const response: {
-			paymentHistory: Set<TClientData>
+			paymentHistory: Set<TPaymentHistory>
 			expirationDate: Date,
-			creditHistory: Set<number>
 		} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
 		if (response) {
 			realm.write(() => {
 				response.expirationDate = data.expirationDate
 				response.paymentHistory.add(data.dataFromForm)
-				response.creditHistory.add(data.creditHistory)
 			})
 		}
 		realm.close()
