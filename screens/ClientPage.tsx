@@ -1,10 +1,28 @@
 import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
 import { TClientData, TPaymentHistory } from '../types'
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { getClientFromDatebase } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import { useFocusEffect } from '@react-navigation/native'
+
+
+const devicesEnums = [
+	{ value: 'smarttv', text: 'TV SMART' },
+	{ value: 'tvaoc', text: 'TV AOC' },
+	{ value: 'tvlg', text: 'TV LG' },
+	{ value: 'tvsamsung', text: 'TV SANSUNG' },
+	{ value: 'tvphilips', text: 'TV PHILIPS' },
+	{ value: 'tvtcl', text: 'TV TCL' },
+	{ value: 'tvbox', text: 'TV BOX' },
+	{ value: 'pc', text: 'PC/COMPUTADOR' }
+]
+
+const plansEnums = [
+	{ value: 'sigle_screen', text: '1 TELA' },
+	{ value: 'dual_screen', text: '2 TELAS' },
+]
 
 const PaymentHistoryTable = (props: {
 	paymentHistory: TPaymentHistory[]
@@ -33,8 +51,7 @@ export default function ClientPage({ route, navigation }: any) {
 	const currentClientID = route.params.primaryKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
 
-	console.log('clientData	', clientData)
-	
+	console.log('clientData	', JSON.stringify(clientData, null, 2))
 
 	const {
 		_id,
@@ -90,17 +107,18 @@ export default function ClientPage({ route, navigation }: any) {
 		})
 	}
 
-	useEffect(() => {
-		const loadClient = async () => {
-			const clientDataResult = await getClientFromDatebase(currentClientID)
-			console.log('clientData', clientDataResult)
-			
-			setClientData(clientDataResult)
-		}
-		loadClient()
+	useFocusEffect(
+		useCallback(() => {
+			const loadClient = async () => {
+				const clientDataResult = await getClientFromDatebase(currentClientID)
+				console.log('clientData', clientDataResult)
 
-		setNavigationOptions()
-	}, [])
+				setClientData(clientDataResult)
+			}
+			loadClient()
+			setNavigationOptions()
+		}, [])
+	)
 
 	return (
 		<View style={styles.container}>
@@ -138,7 +156,7 @@ export default function ClientPage({ route, navigation }: any) {
 
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Plano</Text>
-					<Text style={styles.itemClient}>{plan}</Text>
+					<Text style={styles.itemClient}>{plansEnums.find(item => item.value == plan)?.text}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Status</Text>
@@ -150,7 +168,7 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Aparelho</Text>
-					<Text style={styles.itemClient}>{device}</Text>
+					<Text style={styles.itemClient}>{devicesEnums.find(item => item.value == device)?.text}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Aplicativo</Text>
@@ -195,7 +213,8 @@ export default function ClientPage({ route, navigation }: any) {
 				{paymentHistory.length != 0 ? (
 					<PaymentHistoryTable
 						paymentHistory={paymentHistory}
-						creditHistory={creditHistory} />
+						creditHistory={creditHistory}
+					/>
 				) : (
 					<View style={styles.itensContainer}>
 						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
@@ -203,9 +222,13 @@ export default function ClientPage({ route, navigation }: any) {
 				)}
 
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={() => navigation.navigate('UpdatePayment', {
-						primaryKey,
-					})}>
+					<Pressable
+						onPress={() =>
+							navigation.navigate('UpdatePayment', {
+								primaryKey,
+							})
+						}
+					>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>ATUALIZAR PAGAMENTO</Text>
 						</View>
