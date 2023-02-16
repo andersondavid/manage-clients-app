@@ -26,9 +26,8 @@ const plansEnums = [
 
 const PaymentHistoryTable = (props: {
 	paymentHistory: TPaymentHistory[]
-	creditHistory: number[]
 }) => {
-	const { paymentHistory, creditHistory } = props
+	const { paymentHistory } = props
 	return (
 		<View>
 			{paymentHistory.map((item, index) => {
@@ -38,7 +37,7 @@ const PaymentHistoryTable = (props: {
 						<Text style={styles.itemClient}>{formatDate(item.date)}</Text>
 						<Text style={styles.itemClient}>{item.method}</Text>
 						<Text style={styles.itemClient}>
-							{item.price - creditHistory[index]}
+							{item.price - item.creditHistory}
 						</Text>
 					</View>
 				)
@@ -213,7 +212,6 @@ export default function ClientPage({ route, navigation }: any) {
 				{paymentHistory.length != 0 ? (
 					<PaymentHistoryTable
 						paymentHistory={paymentHistory}
-						creditHistory={creditHistory}
 					/>
 				) : (
 					<View style={styles.itensContainer}>

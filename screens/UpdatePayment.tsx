@@ -61,16 +61,16 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 			price: parseInt(data.getPaymentValue),
 			method: data.getPaymentMethod,
 			date: paymentDay,
+			creditHistory: parseInt(data.getCreditValue)
 		}
 
 		const dataToUpdate = {
 			dataFromForm,
 			expirationDate: expireDay,
-			creditHistory: data.getCreditValue,
 		}
 
 		updatePayment(currentClientID, dataToUpdate)
-			.then((data) =>
+			.then(() =>
 				Alert.alert('Sucesso', 'Pagamento registrado.', [
 					{
 						text: 'Abrir Cliente',
@@ -79,7 +79,7 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 					},
 				])
 			)
-			.catch((err) =>
+			.catch(() =>
 				Alert.alert('Erro', 'houve algum erro durante a operação.')
 			)
 	}

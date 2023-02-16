@@ -19,7 +19,6 @@ const ClientsSchema: ObjectSchema = {
 		paymentPerson: 'string?',
 		activationDate: 'date?',
 		expirationDate: 'date?',
-		creditHistory: 'string<>',
 		paymentHistory: 'PaymentHistorySchema<>'
 	},
 	primaryKey: 'primaryKey',
@@ -30,7 +29,8 @@ const PaymentHistorySchema: ObjectSchema = {
 	properties: {
 		price: 'int',
 		date: 'date',
-		method: 'string'
+		method: 'string',
+		creditHistory: 'int'
 	}
 }
 export {ClientsSchema, PaymentHistorySchema}

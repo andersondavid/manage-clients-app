@@ -15,7 +15,6 @@ export type TClientData = {
 	paymentPerson?: string;
 	activationDate?: Date;
 	expirationDate?: Date;
-	creditHistory: number[];
 	paymentHistory: TPaymentHistory[]
 }
 
@@ -23,6 +22,7 @@ type TPaymentHistory = {
 	price: number;
 	date: Date;
 	method: string;
+	creditHistory: number
 }
 
 export type RootStackParamList = {
