@@ -1,15 +1,16 @@
 import { GetRealm } from './GetRealm'
 import { TClientData } from '../types'
 
-export const writeClient = async (data: TClientData): Promise<TClientData | undefined> => {
+export const writeClient = async (
+	data: TClientData
+): Promise<TClientData | undefined> => {
 	const realm = await GetRealm()
 	data.created_at = new Date()
 	let result
 
 	try {
 		realm.write(() => {
-			result = realm.create('ClientsSchema', data)
-				.toJSON()
+			result = realm.create('ClientsSchema', data).toJSON()
 		})
 	} catch (error) {
 		console.error(error)
@@ -29,7 +30,6 @@ export const getClientFromDatebase = async (selectedId: string) => {
 		realm.close()
 
 		return response
-
 	} catch (error) {
 		console.error(error)
 		realm.close()
@@ -39,11 +39,16 @@ export const getClientFromDatebase = async (selectedId: string) => {
 export const updatePayment = async (selectedId: string, data: any) => {
 	const realm = await GetRealm()
 	try {
-		const response: { paymentHistory: Set<TClientData> } | null = realm
-			.objectForPrimaryKey('ClientsSchema', selectedId)
+		const response: {
+			paymentHistory: Set<TClientData>
+			expirationDate: Date,
+			creditHistory: Set<number>
+		} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
 		if (response) {
 			realm.write(() => {
-				response.paymentHistory.add({...data.dataFromForm, price: parseInt(data.dataFromForm.price)})
+				response.expirationDate = data.expirationDate
+				response.paymentHistory.add(data.dataFromForm)
+				response.creditHistory.add(data.creditHistory)
 			})
 		}
 		realm.close()
@@ -52,5 +57,4 @@ export const updatePayment = async (selectedId: string, data: any) => {
 		console.error(error)
 		realm.close()
 	}
-
 }
