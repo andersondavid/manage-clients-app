@@ -2,11 +2,13 @@ import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
 import { TClientData, TPaymentHistory } from '../types'
 import { useCallback, useState } from 'react'
-import { getClientFromDatebase } from '../database/DatabaseActions'
+import {
+	deleteClient,
+	getClientFromDatebase,
+} from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { useFocusEffect } from '@react-navigation/native'
-
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -16,7 +18,7 @@ const devicesEnums = [
 	{ value: 'tvphilips', text: 'TV PHILIPS' },
 	{ value: 'tvtcl', text: 'TV TCL' },
 	{ value: 'tvbox', text: 'TV BOX' },
-	{ value: 'pc', text: 'PC/COMPUTADOR' }
+	{ value: 'pc', text: 'PC/COMPUTADOR' },
 ]
 
 const plansEnums = [
@@ -24,9 +26,7 @@ const plansEnums = [
 	{ value: 'dual_screen', text: '2 TELAS' },
 ]
 
-const PaymentHistoryTable = (props: {
-	paymentHistory: TPaymentHistory[]
-}) => {
+const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
 	const { paymentHistory } = props
 	return (
 		<View>
@@ -68,7 +68,6 @@ export default function ClientPage({ route, navigation }: any) {
 		app,
 		planPrice,
 		primaryKey,
-		creditHistory,
 		expirationDate,
 		paymentHistory = [],
 	}: TClientData = clientData
@@ -84,7 +83,10 @@ export default function ClientPage({ route, navigation }: any) {
 				},
 				{
 					text: 'Apagar',
-					onPress: () => console.log('Remover Pressed'),
+					onPress: () => {
+						navigation.goBack(),
+						deleteClient(currentClientID)
+					},
 				},
 			]
 		)
@@ -155,7 +157,9 @@ export default function ClientPage({ route, navigation }: any) {
 
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Plano</Text>
-					<Text style={styles.itemClient}>{plansEnums.find(item => item.value == plan)?.text}</Text>
+					<Text style={styles.itemClient}>
+						{plansEnums.find((item) => item.value == plan)?.text}
+					</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Status</Text>
@@ -167,7 +171,9 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Aparelho</Text>
-					<Text style={styles.itemClient}>{devicesEnums.find(item => item.value == device)?.text}</Text>
+					<Text style={styles.itemClient}>
+						{devicesEnums.find((item) => item.value == device)?.text}
+					</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Aplicativo</Text>
@@ -210,9 +216,7 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 
 				{paymentHistory.length != 0 ? (
-					<PaymentHistoryTable
-						paymentHistory={paymentHistory}
-					/>
+					<PaymentHistoryTable paymentHistory={paymentHistory} />
 				) : (
 					<View style={styles.itensContainer}>
 						<Text style={styles.itemClient}>Nenhum registro encontrado</Text>
