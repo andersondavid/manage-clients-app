@@ -37,16 +37,19 @@ export const getClientFromDatebase = async (selectedId: string) => {
 }
 
 type TDataToUpdate = {
-	expirationDate: Date,
+	expirationDate: Date
 	dataFromForm: TPaymentHistory
 }
 
-export const updatePayment = async (selectedId: string, data: TDataToUpdate) => {
+export const updatePayment = async (
+	selectedId: string,
+	data: TDataToUpdate
+) => {
 	const realm = await GetRealm()
 	try {
 		const response: {
 			paymentHistory: Set<TPaymentHistory>
-			expirationDate: Date,
+			expirationDate: Date
 		} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
 		if (response) {
 			realm.write(() => {
@@ -59,5 +62,22 @@ export const updatePayment = async (selectedId: string, data: TDataToUpdate) => 
 	} catch (error) {
 		console.error(error)
 		realm.close()
+	}
+}
+
+export const deleteClient = async (primaryKey: string) => {
+	const realm = await GetRealm()
+
+	try {
+		const response = realm.objectForPrimaryKey('ClientsSchema', primaryKey)
+		if (response) {
+			realm.write(() => {
+				realm.delete(response)
+			})
+		}
+	} catch (error) {
+		console.log('ERRO: Erro ao excluir cliente\n', error)
+		realm.close()
+
 	}
 }
