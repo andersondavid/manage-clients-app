@@ -28,6 +28,7 @@ export default function Home({ navigation }: RouterProps) {
 				.toJSON()
 
 			setClientState(response)
+			realm.close()
 		} catch (error) {
 			console.error(error)
 		}
