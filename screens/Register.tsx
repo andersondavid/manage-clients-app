@@ -1,11 +1,28 @@
-import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-native'
-import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
+import {
+	View,
+	StyleSheet,
+	Pressable,
+	Text,
+	Alert,
+	ScrollView,
+} from 'react-native'
+import {
+	useForm,
+	FormProvider,
+	SubmitHandler,
+	SubmitErrorHandler,
+	FieldValues,
+} from 'react-hook-form'
 import { useEffect, useState } from 'react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { rand } from '@jsweb/randkey'
 
 import { TextInputEl } from '../components/TextInputEl'
-import { getClientFromDatebase, writeClient } from '../database/DatabaseActions'
+import {
+	getClientFromDatebase,
+	writeClient,
+	updateClientData,
+} from '../database/DatabaseActions'
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
 import { RootStackParamList } from '../types'
@@ -18,7 +35,7 @@ const devicesEnums = [
 	{ value: 'tvphilips', text: 'TV PHILIPS' },
 	{ value: 'tvtcl', text: 'TV TCL' },
 	{ value: 'tvbox', text: 'TV BOX' },
-	{ value: 'pc', text: 'PC/COMPUTADOR' }
+	{ value: 'pc', text: 'PC/COMPUTADOR' },
 ]
 
 const plansEnums = [
@@ -44,20 +61,21 @@ const initialValues = {
 	activationDate: new Date(),
 	expirationDate: new Date(),
 	creditHistory: [],
-	paymentHistory: []
+	paymentHistory: [],
 }
 
-type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>;
+type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
 
 export default function Register({ navigation, route }: RouterProps) {
-
 	//EDIT MODE Pegar parametros da rota, principalmente _id e isEditMode
 	const params = route.params
 	//EDIT MODE State para valores default e para popular os campos no edit mode
-	const [clientValues, setClientValues] = useState<TClientData | any>(initialValues)
+	const [clientValues, setClientValues] = useState<TClientData | any>(
+		initialValues
+	)
 	// AMBOS hook obrigatorio para usar o form e preencher os valores default
 	const { ...methods } = useForm({
-		values: clientValues
+		values: clientValues,
 	})
 
 	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
@@ -66,7 +84,7 @@ export default function Register({ navigation, route }: RouterProps) {
 			.then((data) => {
 				setClientValues(data)
 			})
-			.catch(err => console.log('Erro ao carregar cliente para edição', err))
+			.catch((err) => console.log('Erro ao carregar cliente para edição', err))
 	}
 
 	//EDIT MODE  Checa se estar no edit mode e usar o _id vindo dos parametros para buscar dados do cliente
@@ -81,20 +99,42 @@ export default function Register({ navigation, route }: RouterProps) {
 	}, [])
 
 	// AMBOS confirmação de cadastro/atualização
-	const updateCreateClientAlert = (data: TClientData | undefined) => {
-		Alert.alert('Sucesso', `Cliente ${data?.name} ${params?.isEditMode ? 'atualizado' : 'cadastrado'}`, [
-			{ text: 'Abrir Cliente', onPress: () => navigation.navigate('ClientPage', { primaryKey: data?.primaryKey }) }
-		])
+	const updateCreateClientAlert = (data: TClientData | undefined | null) => {
+		Alert.alert(
+			'Sucesso',
+			`Cliente ${data?.name} ${
+				params?.isEditMode ? 'atualizado' : 'cadastrado'
+			}`,
+			[
+				{
+					text: 'Abrir Cliente',
+					onPress: () => {
+						navigation.navigate('ClientPage', { primaryKey: data?.primaryKey })
+					},
+				},
+			]
+		)
 	}
 	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		if (!params?.isEditMode) {
 			writeClient(data as TClientData)
-				.then(data => updateCreateClientAlert(data))
-				.catch((error) => { Alert.alert('Erro', 'houve algum erro durante a operação.'); console.log(error) })
+				.then((data) => {
+					updateCreateClientAlert(data)
+				})
+				.catch((error) => {
+					Alert.alert('Erro', 'houve algum erro durante a operação.')
+					console.log(error)
+				})
 		} else if (params?.isEditMode) {
-			console.log('*************************************')
-			console.log('EDIT MODE ', data)
+			updateClientData(data.primaryKey, data)
+				.then((data) => {
+					updateCreateClientAlert(data)
+				})
+				.catch((error) => {
+					Alert.alert('Erro', 'houve algum erro durante a operação.')
+					console.log(error)
+				})
 		}
 	}
 	// AMBOS Se os campos estiverem preenchidos incorretamente, indica quais campos não foram preenchidos
@@ -115,7 +155,9 @@ export default function Register({ navigation, route }: RouterProps) {
 		}
 		Alert.alert(
 			'Campos Obrigatorios Faltantes',
-			missingRequiredFields.flatMap((field): string => `${FieldsName[field]} é obrigatorio`).join('\n')
+			missingRequiredFields
+				.flatMap((field): string => `${FieldsName[field]} é obrigatorio`)
+				.join('\n')
 		)
 	}
 
@@ -127,7 +169,7 @@ export default function Register({ navigation, route }: RouterProps) {
 						label={'ID'}
 						name={'_id'}
 						placeholder={'1, 2, 3, ...'}
-						keyboardType={'default'}
+						keyboardType={'numeric'}
 						rules={{ required: 'ID is required!' }}
 					/>
 					<TextInputEl
@@ -169,7 +211,7 @@ export default function Register({ navigation, route }: RouterProps) {
 						label={'Valor do Plano'}
 						name={'planPrice'}
 						placeholder={'R$ 0,00'}
-						keyboardType={'default'}
+						keyboardType={'numeric'}
 						rules={{ required: 'Valor do Plano is required!' }}
 					/>
 					<TextInputEl

@@ -1,10 +1,12 @@
 import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
 import { TClientData, TPaymentHistory } from '../types'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
 	deleteClient,
 	getClientFromDatebase,
+	removePayment,
+	updateStatus,
 } from '../database/DatabaseActions'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -50,8 +52,6 @@ export default function ClientPage({ route, navigation }: any) {
 	const currentClientID = route.params.primaryKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
 
-	console.log('clientData	', JSON.stringify(clientData, null, 2))
-
 	const {
 		_id,
 		status,
@@ -72,6 +72,8 @@ export default function ClientPage({ route, navigation }: any) {
 		paymentHistory = [],
 	}: TClientData = clientData
 
+	const [statusState, setStatusState] = useState(status)
+
 	const removeClient = () => {
 		Alert.alert(
 			'Apagar Cliente',
@@ -84,13 +86,45 @@ export default function ClientPage({ route, navigation }: any) {
 				{
 					text: 'Apagar',
 					onPress: () => {
-						navigation.goBack(),
-						deleteClient(currentClientID)
+						navigation.goBack(), deleteClient(currentClientID)
 					},
 				},
 			]
 		)
 	}
+
+	const removeLastPayment = () => {
+		Alert.alert(
+			'Apagar Cliente',
+			'Deseja remover esse cliente dos registros?\nO processo é inreversivel',
+			[
+				{
+					text: 'Cancelar',
+					onPress: () => console.log('Cancel Pressed'),
+				},
+				{
+					text: 'Apagar',
+					onPress: () => {
+						removePayment(currentClientID, paymentHistory)
+					},
+				},
+			]
+		)
+	}
+
+	const changeStatus = () => {
+		Alert.alert('Atualizar Status', 'Alterações serão visiveis ao atualizar a tela', [
+			{
+				text: 'Ativo',
+				onPress: () => updateStatus(currentClientID, 'ATIVO'),
+			},
+			{
+				text: 'Inativo',
+				onPress: () => updateStatus(currentClientID, 'INATIVO'),
+			},
+		])
+	}
+
 	const setNavigationOptions = () => {
 		navigation.setOptions({
 			headerRight: () => (
@@ -112,8 +146,6 @@ export default function ClientPage({ route, navigation }: any) {
 		useCallback(() => {
 			const loadClient = async () => {
 				const clientDataResult = await getClientFromDatebase(currentClientID)
-				console.log('clientData', clientDataResult)
-
 				setClientData(clientDataResult)
 			}
 			loadClient()
@@ -225,21 +257,38 @@ export default function ClientPage({ route, navigation }: any) {
 
 				<View style={[styles.form, styles.formLoad]}>
 					<Pressable
-						onPress={() =>
+						onPress={() => {
 							navigation.navigate('UpdatePayment', {
 								primaryKey,
 							})
-						}
+						}}
 					>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>ATUALIZAR PAGAMENTO</Text>
 						</View>
 					</Pressable>
 				</View>
+
+				<View style={[styles.form, styles.formLoad]}>
+					<Pressable onPress={changeStatus}>
+						<View style={styles.squareBtn}>
+							<Text style={styles.textBtn}>MUDAR STATUS</Text>
+						</View>
+					</Pressable>
+				</View>
+
 				<View style={[styles.form, styles.formLoad]}>
 					<Pressable onPress={removeClient}>
 						<View style={[styles.squareBtn, { backgroundColor: '#ff2233' }]}>
 							<Text style={styles.textBtn}>APAGAR CLIENTE</Text>
+						</View>
+					</Pressable>
+				</View>
+
+				<View style={[styles.form, styles.formLoad]}>
+					<Pressable onPress={removeLastPayment}>
+						<View style={[styles.squareBtn, { backgroundColor: '#ff2233' }]}>
+							<Text style={styles.textBtn}>LIMPAR PAGAMENTOS</Text>
 						</View>
 					</Pressable>
 				</View>

@@ -16,7 +16,6 @@ export const writeClient = async (
 		console.error(error)
 	}
 
-	realm.close()
 	return result
 }
 
@@ -27,12 +26,41 @@ export const getClientFromDatebase = async (selectedId: string) => {
 			.objectForPrimaryKey('ClientsSchema', selectedId)
 			?.toJSON()
 
-		realm.close()
+
 
 		return response
 	} catch (error) {
 		console.error(error)
-		realm.close()
+
+	}
+}
+
+export const updateClientData = async (selectedId: string, data: any) => {
+	const realm = await GetRealm()
+
+	try {
+		const response: TClientData | undefined | null = realm.objectForPrimaryKey(
+			'ClientsSchema',
+			selectedId
+		)
+		if (response) {
+			realm.write(() => {
+				response._id = data._id
+				response.name = data.name
+				response.user = data.user
+				response.pass = data.pass
+				response.server = data.server
+				response.plan = data.plan
+				response.planPrice = data.planPrice
+				response.paymentPerson = data.paymentPerson
+				response.device = data.device
+				response.app = data.app
+				response.whatsapp = data.whatsapp
+			})
+		}
+		return response
+	} catch (error) {
+		console.error(error)
 	}
 }
 
@@ -57,11 +85,34 @@ export const updatePayment = async (
 				response.paymentHistory.add(data.dataFromForm)
 			})
 		}
-		realm.close()
+
 		return response
 	} catch (error) {
 		console.error(error)
-		realm.close()
+
+	}
+}
+
+export const removePayment = async (
+	selectedId: string,
+	paymentHistory: TPaymentHistory[]
+) => {
+
+	const realm = await GetRealm()
+	const getLastPaymentItem = paymentHistory[paymentHistory.length - 1]
+
+	try {
+		const response: {
+			paymentHistory: Set<TPaymentHistory>
+		} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
+		if (response) {
+			realm.write(() => {
+				response.paymentHistory.clear()
+			})
+		}
+		return response
+	} catch (error) {
+		console.error(error)
 	}
 }
 
@@ -77,7 +128,25 @@ export const deleteClient = async (primaryKey: string) => {
 		}
 	} catch (error) {
 		console.log('ERRO: Erro ao excluir cliente\n', error)
-		realm.close()
 
+	}
+}
+
+
+export const updateStatus = async (
+	selectedId: string,
+	status: string
+) => {
+	const realm = await GetRealm()
+	try {
+		const response: TClientData | undefined | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
+		if (response) {
+			realm.write(() => {
+				response.status = status
+			})
+		}
+		return response
+	} catch (error) {
+		console.error(error)
 	}
 }
