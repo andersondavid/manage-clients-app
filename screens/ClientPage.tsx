@@ -97,7 +97,7 @@ export default function ClientPage({ route, navigation }: any) {
 	const removeLastPayment = () => {
 		Alert.alert(
 			'Apagar Cliente',
-			'Deseja limpar os dados de pagamento?\nO processo é inrevessivel\nAtualizaões são vistas apos atualizar a tela',
+			'Deseja limpar os dados de pagamento?\nO processo é inrevessivel\nAlterações serão visiveis ao atualizar a tela',
 			[
 				{
 					text: 'Cancelar',
@@ -118,6 +118,9 @@ export default function ClientPage({ route, navigation }: any) {
 			'Atualizar Status',
 			'Alterações serão visiveis ao atualizar a tela',
 			[
+				{
+					text: 'Cancelar',
+				},
 				{
 					text: 'Ativo',
 					onPress: () => updateStatus(currentClientID, 'ATIVO'),
