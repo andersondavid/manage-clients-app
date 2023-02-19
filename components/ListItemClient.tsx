@@ -11,7 +11,15 @@ export default function ListItemClient(props: { clientData: TClientData }) {
 	return (
 		<View style={styles.container}>
 			<View style={styles.idView}>
-				<View style={[styles.idCicle, {backgroundColor: clientData.status == 'ATIVO' ? '#11ff77' : '#ff2244'}]}>
+				<View
+					style={[
+						styles.idCicle,
+						{
+							backgroundColor:
+								clientData.status == 'ATIVO' ? '#11ff77' : '#ff2244',
+						},
+					]}
+				>
 					<Text style={styles.idText}>{clientData._id}</Text>
 				</View>
 			</View>
@@ -24,12 +32,16 @@ export default function ListItemClient(props: { clientData: TClientData }) {
 			<View style={styles.remainDaysContainer}>
 				{clientData.paymentHistory.slice().pop() && (
 					<Text style={styles.lastPayment}>
-						{formatDate(clientData.paymentHistory.slice().pop()?.date.toDateString())}
+						{formatDate(
+							clientData.paymentHistory.slice().pop()?.date.toDateString()
+						)}
 					</Text>
 				)}
-				<Text style={styles.remainDays}>
-					{calculateDates(clientData.expirationDate)}
-				</Text>
+				{clientData.expirationDate && (
+					<Text style={styles.remainDays}>
+						{calculateDates(clientData.expirationDate)}
+					</Text>
+				)}
 			</View>
 		</View>
 	)
@@ -49,26 +61,27 @@ const styles = StyleSheet.create({
 		backgroundColor: 'white',
 		borderRadius: 23,
 		margin: 10,
+		display: 'flex',
+		justifyContent: 'center',
 	},
 	idText: {
 		fontSize: 24,
 		fontWeight: 'bold',
 		color: 'black',
-		justifyContent: 'center',
 		textAlign: 'center',
 	},
 	nameRow: {
 		flexGrow: 1,
+		display: 'flex',
+		justifyContent: 'center',
 	},
 	clientName: {
 		color: '#ffffff',
 		fontSize: 16,
-		lineHeight: 28,
 	},
 	desc: {
 		color: '#ffffff75',
 		fontSize: 14,
-		lineHeight: 28,
 	},
 	remainDaysContainer: {
 		justifyContent: 'center',

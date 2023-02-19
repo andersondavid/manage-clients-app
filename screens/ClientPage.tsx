@@ -11,6 +11,7 @@ import {
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { useFocusEffect } from '@react-navigation/native'
+import { calculateDates } from '../utils/calculateDates'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -96,7 +97,7 @@ export default function ClientPage({ route, navigation }: any) {
 	const removeLastPayment = () => {
 		Alert.alert(
 			'Apagar Cliente',
-			'Deseja remover esse cliente dos registros?\nO processo é inreversivel',
+			'Deseja limpar os dados de pagamento?\nO processo é inrevessivel\nAtualizaões são vistas apos atualizar a tela',
 			[
 				{
 					text: 'Cancelar',
@@ -105,7 +106,7 @@ export default function ClientPage({ route, navigation }: any) {
 				{
 					text: 'Apagar',
 					onPress: () => {
-						removePayment(currentClientID, paymentHistory)
+						removePayment(currentClientID)
 					},
 				},
 			]
@@ -113,16 +114,20 @@ export default function ClientPage({ route, navigation }: any) {
 	}
 
 	const changeStatus = () => {
-		Alert.alert('Atualizar Status', 'Alterações serão visiveis ao atualizar a tela', [
-			{
-				text: 'Ativo',
-				onPress: () => updateStatus(currentClientID, 'ATIVO'),
-			},
-			{
-				text: 'Inativo',
-				onPress: () => updateStatus(currentClientID, 'INATIVO'),
-			},
-		])
+		Alert.alert(
+			'Atualizar Status',
+			'Alterações serão visiveis ao atualizar a tela',
+			[
+				{
+					text: 'Ativo',
+					onPress: () => updateStatus(currentClientID, 'ATIVO'),
+				},
+				{
+					text: 'Inativo',
+					onPress: () => updateStatus(currentClientID, 'INATIVO'),
+				},
+			]
+		)
 	}
 
 	const setNavigationOptions = () => {
@@ -234,6 +239,12 @@ export default function ClientPage({ route, navigation }: any) {
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Nome do Pagador</Text>
 					<Text style={styles.itemClient}>{paymentPerson}</Text>
+				</View>
+				<View style={styles.itensContainer}>
+					<Text style={styles.itemClient}>Dias restantes</Text>
+					{clientData.expirationDate && <Text style={styles.itemClient}>
+						{calculateDates(clientData.expirationDate)}
+					</Text>}
 				</View>
 
 				<View style={styles.itemHeader}>
