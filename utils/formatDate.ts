@@ -1,4 +1,8 @@
-export const formatDate = (iSOString: string | Date) => {
+export const formatDate = (iSOString: string | Date | undefined) => {
+
+	if (!iSOString) {
+		return ''
+	}
 
 	const date = new Date(iSOString)
 

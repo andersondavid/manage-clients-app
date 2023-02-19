@@ -95,19 +95,19 @@ export const updatePayment = async (
 
 export const removePayment = async (
 	selectedId: string,
-	paymentHistory: TPaymentHistory[]
 ) => {
 
 	const realm = await GetRealm()
-	const getLastPaymentItem = paymentHistory[paymentHistory.length - 1]
 
 	try {
 		const response: {
-			paymentHistory: Set<TPaymentHistory>
+			paymentHistory: Set<TPaymentHistory>,
+			expirationDate: Date | null
 		} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
 		if (response) {
 			realm.write(() => {
 				response.paymentHistory.clear()
+				response.expirationDate = null
 			})
 		}
 		return response
