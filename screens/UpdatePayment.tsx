@@ -1,7 +1,7 @@
 import {
 	View,
 	StyleSheet,
-	Pressable,
+	TouchableOpacity,
 	Text,
 	Alert,
 	ScrollView,
@@ -121,20 +121,20 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 						rules={{ required: 'Metodo is required!' }}
 					/>
 					<Text style={styles.formInputLabel}>Data do Pagamento</Text>
-					<Pressable
+					<TouchableOpacity
 						style={styles.formInputField}
 						onPress={() => setModalPaymentDay(true)}
 					>
 						<Text style={styles.buttonModalDate}>{formatDate(paymentDay)}</Text>
-					</Pressable>
+					</TouchableOpacity>
 
 					<Text style={styles.formInputLabel}>Data do Vecimento</Text>
-					<Pressable
+					<TouchableOpacity
 						style={styles.formInputField}
 						onPress={() => setModalExpireDay(true)}
 					>
 						<Text style={styles.buttonModalDate}>{formatDate(expireDay)}</Text>
-					</Pressable>
+					</TouchableOpacity>
 
 					<TextInputEl
 						label={'Credito'}
@@ -145,11 +145,11 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 					/>
 				</FormProvider>
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={methods.handleSubmit(onSubmit, onError)}>
+					<TouchableOpacity onPress={methods.handleSubmit(onSubmit, onError)}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>REGISTRAR</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 			<DatePicker

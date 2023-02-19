@@ -1,4 +1,4 @@
-import { View, StyleSheet, Pressable, Text, Alert, ScrollView } from 'react-native'
+import { View, StyleSheet, TouchableOpacity, Text, Alert, ScrollView } from 'react-native'
 import { useForm, FormProvider, SubmitHandler, SubmitErrorHandler, FieldValues } from 'react-hook-form'
 
 import { TextInputEl } from '../components/TextInputEl'
@@ -117,11 +117,11 @@ export default function RegisterPlan() {
 					/>
 				</FormProvider>
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={methods.handleSubmit(onSubmit, onError)}>
+					<TouchableOpacity onPress={methods.handleSubmit(onSubmit, onError)}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>REGISTRAR</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 
 

@@ -1,7 +1,7 @@
 import {
 	View,
 	StyleSheet,
-	Pressable,
+	TouchableOpacity,
 	Text,
 	Alert,
 	ScrollView,
@@ -244,11 +244,11 @@ export default function Register({ navigation, route }: RouterProps) {
 					/>
 				</FormProvider>
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={methods.handleSubmit(onSubmit, onError)}>
+					<TouchableOpacity onPress={methods.handleSubmit(onSubmit, onError)}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>REGISTRAR</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 		</View>

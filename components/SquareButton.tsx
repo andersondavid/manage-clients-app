@@ -1,15 +1,15 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 
 export default function SquareButton(props: any) {
 	const { children, handlerForm } = props
 
 	return (
-		<Pressable onPress={handlerForm}>
+		<TouchableOpacity onPress={handlerForm}>
 			<View style={styles.squareBtn}>
 				<Text style={styles.textBtn}>{children}</Text>
 			</View>
-		</Pressable>
+		</TouchableOpacity>
 	)
 }
 

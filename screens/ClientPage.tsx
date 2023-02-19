@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, Pressable, Alert } from 'react-native'
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
 import { TClientData, TPaymentHistory } from '../types'
 import { useCallback, useEffect, useState } from 'react'
@@ -133,7 +133,7 @@ export default function ClientPage({ route, navigation }: any) {
 	const setNavigationOptions = () => {
 		navigation.setOptions({
 			headerRight: () => (
-				<Pressable
+				<TouchableOpacity
 					onPress={() =>
 						navigation.navigate('Register', {
 							primaryKey: currentClientID,
@@ -142,7 +142,7 @@ export default function ClientPage({ route, navigation }: any) {
 					}
 				>
 					<Icon name="create" size={22} color="white" />
-				</Pressable>
+				</TouchableOpacity>
 			),
 		})
 	}
@@ -267,7 +267,7 @@ export default function ClientPage({ route, navigation }: any) {
 				)}
 
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable
+					<TouchableOpacity
 						onPress={() => {
 							navigation.navigate('UpdatePayment', {
 								primaryKey,
@@ -277,31 +277,31 @@ export default function ClientPage({ route, navigation }: any) {
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>ATUALIZAR PAGAMENTO</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={changeStatus}>
+					<TouchableOpacity onPress={changeStatus}>
 						<View style={styles.squareBtn}>
 							<Text style={styles.textBtn}>MUDAR STATUS</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={removeClient}>
+					<TouchableOpacity onPress={removeClient}>
 						<View style={[styles.squareBtn, { backgroundColor: '#ff2233' }]}>
 							<Text style={styles.textBtn}>APAGAR CLIENTE</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 
 				<View style={[styles.form, styles.formLoad]}>
-					<Pressable onPress={removeLastPayment}>
+					<TouchableOpacity onPress={removeLastPayment}>
 						<View style={[styles.squareBtn, { backgroundColor: '#ff2233' }]}>
 							<Text style={styles.textBtn}>LIMPAR PAGAMENTOS</Text>
 						</View>
-					</Pressable>
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 		</View>
