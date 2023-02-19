@@ -1,4 +1,4 @@
-import { StyleSheet, View, Pressable } from 'react-native'
+import { StyleSheet, View, TouchableOpacity  } from 'react-native'
 import { useCallback, useEffect, useState } from 'react'
 import { ScrollView } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -10,21 +10,20 @@ import { NavigationProp, useFocusEffect } from '@react-navigation/native'
 import { GetRealm } from '../database/GetRealm'
 
 interface RouterProps {
-	navigation: NavigationProp<any, 'Home'>;
+	navigation: NavigationProp<any, 'Home'>
 }
 
 export default function Home({ navigation }: RouterProps) {
-	const [searchTerm, setSearchTerm] = useState<string>('')
+	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 	const [clientState, setClientState] = useState<any[] | TClientData[]>([])
-
 
 	const fetchClients = async () => {
 		const realm = await GetRealm()
 		try {
 			const response = realm
 				.objects<TClientData[]>('ClientsSchema')
-				.sorted('created_at')
+				.sorted('_id')
 				.toJSON()
 
 			setClientState(response)
@@ -34,6 +33,21 @@ export default function Home({ navigation }: RouterProps) {
 		}
 	}
 
+	const searchClients = async () => {
+		const realm = await GetRealm()
+		try {
+			const response = realm
+				.objects<TClientData[]>('ClientsSchema')
+				.sorted('_id')
+				.filtered(`name CONTAINS[c] "${searchQuery}"`)
+				.toJSON()
+
+			setClientState(response)
+			realm.close()
+		} catch (error) {
+			console.error(error)
+		}
+	}
 
 	const changeHeaderBar = () => {
 		let options = null
@@ -41,63 +55,74 @@ export default function Home({ navigation }: RouterProps) {
 		if (showSearchBar) {
 			options = {
 				headerTitle: () => (
-					<SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+					<SearchBar
+						searchQuery={searchQuery}
+						setSearchQuery={setSearchQuery}
+					/>
 				),
 				headerRight: () => (
-					<Pressable
-						onPress={() => {
-							setShowSearchBar(false)
-							setSearchTerm('')
-						}}
-					>
-						<Icon name="close" size={24} color="white" />
-					</Pressable >
+					<View style={styles.bntsSearchOpen}>
+						<TouchableOpacity  onPress={searchClients}>
+							<Icon name="search" size={20} color="#ffffff" />
+						</TouchableOpacity >
+						<TouchableOpacity 
+							onPress={() => {
+								setShowSearchBar(false)
+								setSearchQuery('')
+							}}
+						>
+							<Icon name="close" size={24} color="white" />
+						</TouchableOpacity >
+					</View>
 				),
 			}
-
 		} else {
 			options = {
 				headerTitle: null,
 				headerRight: () => (
-					<Pressable onPress={() => setShowSearchBar(true)}>
+					<TouchableOpacity  onPress={() => setShowSearchBar(true)}>
 						<Icon name="search" size={20} color="#ffffff" />
-					</Pressable>
+					</TouchableOpacity >
 				),
 			}
 		}
 		navigation.setOptions(options)
 	}
 
-	useFocusEffect(useCallback(() => {
-		fetchClients()
-	}, []))
+	useFocusEffect(
+		useCallback(() => {
+			fetchClients()
+		}, [])
+	)
 
 	useEffect(() => {
 		changeHeaderBar()
-	}, [searchTerm, showSearchBar])
+	}, [searchQuery, showSearchBar])
 
 	return (
 		<View style={styles.container}>
 			<ScrollView>
-				{clientState.map(client => (
-					<Pressable
+				{clientState.map((client) => (
+					<TouchableOpacity 
 						key={client.primaryKey}
 						onPressIn={() =>
-							navigation.navigate('ClientPage', { primaryKey: client.primaryKey })
+							navigation.navigate('ClientPage', {
+								primaryKey: client.primaryKey,
+							})
 						}
 					>
 						<ListItemClient clientData={client} />
-					</Pressable>
+					</TouchableOpacity >
 				))}
 			</ScrollView>
 
 			<View style={styles.fabContainer}>
-				<Pressable
+				<TouchableOpacity 
 					style={styles.fab}
 					onPressIn={() => navigation.navigate('Register')}
 				>
 					<Icon name="add" size={24} color="white" />
-				</Pressable>
+				</TouchableOpacity >
 			</View>
 		</View>
 	)
@@ -120,5 +145,11 @@ const styles = StyleSheet.create({
 		borderRadius: 28,
 		elevation: 5,
 		padding: 16,
+	},
+	bntsSearchOpen: {
+		flexDirection: 'row',
+		width: 56,
+		justifyContent: 'space-between',
+		alignItems: 'center',
 	},
 })

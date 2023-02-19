@@ -1,22 +1,22 @@
 import { View, TextInput, StyleSheet } from 'react-native'
 
 type PropTypes = {
-	searchTerm: string,
-  setSearchTerm: (value: string) => void,
+	searchQuery: string,
+  setSearchQuery: (value: string) => void,
 }
 
 
 export default function SearchBar(props: PropTypes) {
-	const { searchTerm, setSearchTerm } = props
+	const { searchQuery, setSearchQuery } = props
 	
 	return (
 		<View style={styles.inputContainer}>
 			<TextInput
 				placeholderTextColor={'#777'}
 				style={styles.formInputField}
-				value={searchTerm}
+				value={searchQuery}
 				placeholder={'Pesquisar'}
-				onChangeText={(terms) => setSearchTerm(terms)}
+				onChangeText={(querys) => setSearchQuery(querys)}
 			/>
 		</View>
 	)
