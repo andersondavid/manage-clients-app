@@ -39,7 +39,7 @@ export default function Home({ navigation }: RouterProps) {
 			const response = realm
 				.objects<TClientData[]>('ClientsSchema')
 				.sorted('_id')
-				.filtered(`name CONTAINS[c] "${searchQuery}"`)
+				.filtered(`name CONTAINS[c] "${searchQuery}" || _id CONTAINS[c] "${searchQuery}"`)
 				.toJSON()
 
 			setClientState(response)
