@@ -43,7 +43,7 @@ const paymentMethods = [
 	},
 ]
 
-type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
+type RouterProps = NativeStackScreenProps<RootStackParamList, 'UpdatePayment'>
 
 export default function UpdatePayment({ navigation, route }: RouterProps) {
 	const realm = useMainContext()
