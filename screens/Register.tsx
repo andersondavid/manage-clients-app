@@ -18,14 +18,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { rand } from '@jsweb/randkey'
 
 import { TextInputEl } from '../components/TextInputEl'
-import {
-	getClientFromDatebase,
-	writeClient,
-	updateClientData,
-} from '../database/DatabaseActions'
+
 import { TClientData } from '../types'
 import { PickerEl } from '../components/PickerEl'
 import { RootStackParamList } from '../types'
+import { useMainContext } from '../context/RealmContext'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -67,6 +64,7 @@ const initialValues = {
 type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
 
 export default function Register({ navigation, route }: RouterProps) {
+	const realm = useMainContext()
 	//EDIT MODE Pegar parametros da rota, principalmente _id e isEditMode
 	const params = route.params
 	//EDIT MODE State para valores default e para popular os campos no edit mode
@@ -80,11 +78,17 @@ export default function Register({ navigation, route }: RouterProps) {
 
 	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
 	const loadClient = async (primaryKey: string) => {
-		getClientFromDatebase(primaryKey)
-			.then((data) => {
-				setClientValues(data)
-			})
-			.catch((err) => console.log('Erro ao carregar cliente para edição', err))
+		try {
+			if (realm) {
+				const response = realm
+					.objectForPrimaryKey('ClientsSchema', primaryKey)
+					?.toJSON()
+
+				setClientValues(response)
+			}
+		} catch (error) {
+			console.log('Erro ao carregar cliente para edição', error)
+		}
 	}
 
 	//EDIT MODE  Checa se estar no edit mode e usar o _id vindo dos parametros para buscar dados do cliente
@@ -115,26 +119,49 @@ export default function Register({ navigation, route }: RouterProps) {
 			]
 		)
 	}
+	
 	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		if (!params?.isEditMode) {
-			writeClient(data as TClientData)
-				.then((data) => {
-					updateCreateClientAlert(data)
-				})
-				.catch((error) => {
-					Alert.alert('Erro', 'houve algum erro durante a operação.')
-					console.log(error)
-				})
+			data.created_at = new Date()
+			let result
+			try {
+				if (realm) {
+					realm.write(() => {
+						result = realm.create('ClientsSchema', data).toJSON()
+					})
+					updateCreateClientAlert(result)
+				}
+			} catch (error) {
+				Alert.alert('Erro', 'houve algum erro durante a operação.')
+				console.error(error)
+			}
 		} else if (params?.isEditMode) {
-			updateClientData(data.primaryKey, data)
-				.then((data) => {
-					updateCreateClientAlert(data)
-				})
-				.catch((error) => {
-					Alert.alert('Erro', 'houve algum erro durante a operação.')
-					console.log(error)
-				})
+			try {
+				if (realm) {
+					const response: TClientData | undefined | null =
+						realm.objectForPrimaryKey('ClientsSchema', params?.primaryKey)
+					if (response) {
+						realm.write(() => {
+							response._id = data._id
+							response.name = data.name
+							response.user = data.user
+							response.pass = data.pass
+							response.server = data.server
+							response.plan = data.plan
+							response.planPrice = data.planPrice
+							response.paymentPerson = data.paymentPerson
+							response.device = data.device
+							response.app = data.app
+							response.whatsapp = data.whatsapp
+						})
+						updateCreateClientAlert(response)
+					}
+					return response
+				}
+			} catch (error) {
+				console.error(error)
+			}
 		}
 	}
 	// AMBOS Se os campos estiverem preenchidos incorretamente, indica quais campos não foram preenchidos

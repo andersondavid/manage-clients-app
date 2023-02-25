@@ -1,4 +1,4 @@
-import { StyleSheet, View, TouchableOpacity  } from 'react-native'
+import { StyleSheet, View, TouchableOpacity } from 'react-native'
 import { useCallback, useEffect, useState } from 'react'
 import { ScrollView } from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -7,7 +7,7 @@ import SearchBar from '../components/SearchBar'
 import ListItemClient from '../components/ListItemClient'
 import { TClientData } from '../types'
 import { NavigationProp, useFocusEffect } from '@react-navigation/native'
-import { GetRealm } from '../database/GetRealm'
+import { useMainContext } from '../context/RealmContext'
 
 interface RouterProps {
 	navigation: NavigationProp<any, 'Home'>
@@ -17,33 +17,21 @@ export default function Home({ navigation }: RouterProps) {
 	const [searchQuery, setSearchQuery] = useState<string>('')
 	const [showSearchBar, setShowSearchBar] = useState<boolean>(false)
 	const [clientState, setClientState] = useState<any[] | TClientData[]>([])
+	const realm = useMainContext()
 
-	const fetchClients = async () => {
-		const realm = await GetRealm()
-		try {
-			const response = realm
-				.objects<TClientData[]>('ClientsSchema')
-				.sorted('_id')
-				.toJSON()
-
-			setClientState(response)
-			realm.close()
-		} catch (error) {
-			console.error(error)
-		}
-	}
 
 	const searchClients = async () => {
-		const realm = await GetRealm()
 		try {
-			const response = realm
-				.objects<TClientData[]>('ClientsSchema')
-				.sorted('_id')
-				.filtered(`name CONTAINS[c] "${searchQuery}" || _id CONTAINS[c] "${searchQuery}"`)
-				.toJSON()
-
-			setClientState(response)
-			realm.close()
+			if (realm) {
+				const response = realm
+					.objects<TClientData[]>('ClientsSchema')
+					.sorted('_id')
+					.filtered(
+						`name CONTAINS[c] "${searchQuery}" || _id CONTAINS[c] "${searchQuery}"`
+					)
+					.toJSON()
+				setClientState(response)
+			}
 		} catch (error) {
 			console.error(error)
 		}
@@ -62,17 +50,18 @@ export default function Home({ navigation }: RouterProps) {
 				),
 				headerRight: () => (
 					<View style={styles.bntsSearchOpen}>
-						<TouchableOpacity  onPress={searchClients}>
+						<TouchableOpacity onPress={searchClients}>
 							<Icon name="search" size={20} color="#ffffff" />
-						</TouchableOpacity >
-						<TouchableOpacity 
+						</TouchableOpacity>
+						<TouchableOpacity
 							onPress={() => {
 								setShowSearchBar(false)
 								setSearchQuery('')
+
 							}}
 						>
 							<Icon name="close" size={24} color="white" />
-						</TouchableOpacity >
+						</TouchableOpacity>
 					</View>
 				),
 			}
@@ -80,9 +69,9 @@ export default function Home({ navigation }: RouterProps) {
 			options = {
 				headerTitle: null,
 				headerRight: () => (
-					<TouchableOpacity  onPress={() => setShowSearchBar(true)}>
+					<TouchableOpacity onPress={() => setShowSearchBar(true)}>
 						<Icon name="search" size={20} color="#ffffff" />
-					</TouchableOpacity >
+					</TouchableOpacity>
 				),
 			}
 		}
@@ -91,19 +80,23 @@ export default function Home({ navigation }: RouterProps) {
 
 	useFocusEffect(
 		useCallback(() => {
-			fetchClients()
-		}, [])
+			searchClients()
+			console.log('useFocusEffect')
+			
+		}, [realm])
 	)
 
 	useEffect(() => {
 		changeHeaderBar()
+		console.log('useEffect')
+
 	}, [searchQuery, showSearchBar])
 
 	return (
 		<View style={styles.container}>
 			<ScrollView>
 				{clientState.map((client) => (
-					<TouchableOpacity 
+					<TouchableOpacity
 						key={client.primaryKey}
 						onPressIn={() =>
 							navigation.navigate('ClientPage', {
@@ -112,17 +105,17 @@ export default function Home({ navigation }: RouterProps) {
 						}
 					>
 						<ListItemClient clientData={client} />
-					</TouchableOpacity >
+					</TouchableOpacity>
 				))}
 			</ScrollView>
 
 			<View style={styles.fabContainer}>
-				<TouchableOpacity 
+				<TouchableOpacity
 					style={styles.fab}
 					onPressIn={() => navigation.navigate('Register')}
 				>
 					<Icon name="add" size={24} color="white" />
-				</TouchableOpacity >
+				</TouchableOpacity>
 			</View>
 		</View>
 	)

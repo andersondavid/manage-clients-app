@@ -1,17 +1,12 @@
 import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native'
 import { ScrollView } from 'react-native'
 import { TClientData, TPaymentHistory } from '../types'
-import { useCallback, useEffect, useState } from 'react'
-import {
-	deleteClient,
-	getClientFromDatebase,
-	removePayment,
-	updateStatus,
-} from '../database/DatabaseActions'
+import { useCallback, useState } from 'react'
 import { formatDate } from '../utils/formatDate'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { useFocusEffect } from '@react-navigation/native'
 import { calculateDates } from '../utils/calculateDates'
+import { useMainContext } from '../context/RealmContext'
 
 const devicesEnums = [
 	{ value: 'smarttv', text: 'TV SMART' },
@@ -52,6 +47,7 @@ const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
 export default function ClientPage({ route, navigation }: any) {
 	const currentClientID = route.params.primaryKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
+	const realm = useMainContext()
 
 	const {
 		_id,
@@ -72,8 +68,6 @@ export default function ClientPage({ route, navigation }: any) {
 		expirationDate,
 		paymentHistory = [],
 	}: TClientData = clientData
-
-	const [statusState, setStatusState] = useState(status)
 
 	const removeClient = () => {
 		Alert.alert(
@@ -133,6 +127,60 @@ export default function ClientPage({ route, navigation }: any) {
 		)
 	}
 
+	const updateStatus = async (selectedId: string, status: string) => {
+		try {
+			if (realm) {
+				const response: TClientData | undefined | null =
+					realm.objectForPrimaryKey('ClientsSchema', selectedId)
+				if (response) {
+					realm.write(() => {
+						response.status = status
+					})
+				}
+				return response
+			}
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const removePayment = async (selectedId: string) => {
+
+		try {
+			if (realm) {
+				const response: {
+					paymentHistory: Set<TPaymentHistory>
+					expirationDate: Date | null
+				} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
+				if (response) {
+					realm.write(() => {
+						response.paymentHistory.clear()
+						response.expirationDate = null
+					})
+				}
+				return response
+			}
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
+	const deleteClient = async (primaryKey: string) => {
+
+		try {
+			if (realm) {
+				const response = realm.objectForPrimaryKey('ClientsSchema', primaryKey)
+				if (response) {
+					realm.write(() => {
+						realm.delete(response)
+					})
+				}
+			}
+		} catch (error) {
+			console.log('ERRO: Erro ao excluir cliente\n', error)
+		}
+	}
+
 	const setNavigationOptions = () => {
 		navigation.setOptions({
 			headerRight: () => (
@@ -152,11 +200,17 @@ export default function ClientPage({ route, navigation }: any) {
 
 	useFocusEffect(
 		useCallback(() => {
-			const loadClient = async () => {
-				const clientDataResult = await getClientFromDatebase(currentClientID)
-				setClientData(clientDataResult)
+			try {
+				if (realm) {
+					const response = realm
+						.objectForPrimaryKey('ClientsSchema', currentClientID)
+						?.toJSON()
+
+					setClientData(response)
+				}
+			} catch (error) {
+				console.error(error)
 			}
-			loadClient()
 			setNavigationOptions()
 		}, [])
 	)
@@ -245,9 +299,11 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>Dias restantes</Text>
-					{clientData.expirationDate && <Text style={styles.itemClient}>
-						{calculateDates(clientData.expirationDate)}
-					</Text>}
+					{clientData.expirationDate && (
+						<Text style={styles.itemClient}>
+							{calculateDates(clientData.expirationDate)}
+						</Text>
+					)}
 				</View>
 
 				<View style={styles.itemHeader}>

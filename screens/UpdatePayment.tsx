@@ -17,11 +17,16 @@ import DatePicker from 'react-native-date-picker'
 import { useEffect, useState } from 'react'
 
 import { TextInputEl } from '../components/TextInputEl'
-import { updatePayment } from '../database/DatabaseActions'
 import { RootStackParamList, TPaymentHistory } from '../types'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { formatDate } from '../utils/formatDate'
 import { PickerEl } from '../components/PickerEl'
+import { useMainContext } from '../context/RealmContext'
+
+type TDataToUpdate = {
+	expirationDate: Date
+	dataFromForm: TPaymentHistory
+}
 
 const paymentMethods = [
 	{
@@ -41,6 +46,7 @@ const paymentMethods = [
 type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
 
 export default function UpdatePayment({ navigation, route }: RouterProps) {
+	const realm = useMainContext()
 	const currentClientID = route.params.primaryKey
 
 	const [paymentDay, setPaymentDay] = useState(new Date())
@@ -55,13 +61,34 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 		setExpireDay(new Date(new Date().setMonth(paymentDay.getMonth() + 1)))
 	}, [paymentDay])
 
+	const updatePayment = async (selectedId: string, data: TDataToUpdate) => {
+		try {
+			if (realm) {
+				const response: {
+					paymentHistory: Set<TPaymentHistory>
+					expirationDate: Date
+				} | null = realm.objectForPrimaryKey('ClientsSchema', selectedId)
+				if (response) {
+					realm.write(() => {
+						response.expirationDate = data.expirationDate
+						response.paymentHistory.add(data.dataFromForm)
+					})
+				}
+
+				return response
+			}
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		const dataFromForm: TPaymentHistory = {
 			price: parseInt(data.getPaymentValue),
 			method: data.getPaymentMethod,
 			date: paymentDay,
-			creditHistory: parseInt(data.getCreditValue)
+			creditHistory: parseInt(data.getCreditValue),
 		}
 
 		const dataToUpdate = {
@@ -74,14 +101,11 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 				Alert.alert('Sucesso', 'Pagamento registrado.', [
 					{
 						text: 'Abrir Cliente',
-						onPress: () =>
-							navigation.goBack(),
+						onPress: () => navigation.goBack(),
 					},
 				])
 			)
-			.catch(() =>
-				Alert.alert('Erro', 'houve algum erro durante a operação.')
-			)
+			.catch(() => Alert.alert('Erro', 'houve algum erro durante a operação.'))
 	}
 
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
