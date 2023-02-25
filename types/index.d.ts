@@ -30,7 +30,6 @@ export type RootStackParamList = {
 	ClientPage: {
 		primaryKey: string | undefined
 	};
-	RegisterPlan: undefined;
 	UpdatePayment: {
     primaryKey: string;
   };
