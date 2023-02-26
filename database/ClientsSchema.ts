@@ -3,8 +3,8 @@ import { ObjectSchema } from 'realm'
 const ClientsSchema: ObjectSchema = {
 	name: 'ClientsSchema',
 	properties: {
-		_id: 'string',
 		shareKey: 'string',
+		_id: 'string',
 		created_at: 'date',
 		name: 'string',
 		user: 'string',

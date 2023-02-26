@@ -3,7 +3,7 @@ import { ClientsSchema, PaymentHistorySchema } from './ClientsSchema'
 
 export const GetRealm = async () => {
 	const app = new Realm.App({
-		id: 'application-0-oazbn',
+		id: 'appclientiptv-ygebk',
 	})
 
 	const credentials = Realm.Credentials.anonymous()
@@ -12,10 +12,18 @@ export const GetRealm = async () => {
 	return await Realm.open({
 		path: 'clientsDb_1',
 		schema: [ClientsSchema, PaymentHistorySchema],
-		schemaVersion: 5,
+		schemaVersion: 9,
 		sync: {
 			user: user,
-			partitionValue: 'all',
+			partitionValue: 'all'
 		},
 	})
 }
+
+// "paymentHistory": {
+//   "bsonType": "array",
+//   "uniqueItems": true,
+//   "items": {
+//     "type": "object"
+//   }
+// }

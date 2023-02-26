@@ -45,12 +45,12 @@ const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
 }
 
 export default function ClientPage({ route, navigation }: any) {
-	const currentClientID = route.params.shareKey
+	const currentClientID = route.params._id
 	const [clientData, setClientData] = useState<any | TClientData>({})
 	const realm = useMainContext()
 
 	const {
-		_id,
+		shareKey,
 		status,
 		name,
 		user,
@@ -64,7 +64,7 @@ export default function ClientPage({ route, navigation }: any) {
 		created_at,
 		app,
 		planPrice,
-		shareKey,
+		_id,
 		expirationDate,
 		paymentHistory = [],
 	}: TClientData = clientData
@@ -164,10 +164,10 @@ export default function ClientPage({ route, navigation }: any) {
 		}
 	}
 
-	const deleteClient = async (shareKey: string) => {
+	const deleteClient = async (_id: string) => {
 		try {
 			if (realm) {
-				const response = realm.objectForPrimaryKey('ClientsSchema', shareKey)
+				const response = realm.objectForPrimaryKey('ClientsSchema', _id)
 				if (response) {
 					realm.write(() => {
 						realm.delete(response)
@@ -185,7 +185,7 @@ export default function ClientPage({ route, navigation }: any) {
 				<TouchableOpacity
 					onPress={() =>
 						navigation.navigate('Register', {
-							shareKey: currentClientID,
+							_id: currentClientID,
 							isEditMode: true,
 						})
 					}
@@ -231,7 +231,7 @@ export default function ClientPage({ route, navigation }: any) {
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>ID</Text>
-					<Text style={styles.itemClient}>{_id}</Text>
+					<Text style={styles.itemClient}>{shareKey}</Text>
 				</View>
 				<View style={styles.itensContainer}>
 					<Text style={styles.itemClient}>WhatsApp</Text>
@@ -328,7 +328,7 @@ export default function ClientPage({ route, navigation }: any) {
 					<TouchableOpacity
 						onPress={() => {
 							navigation.navigate('UpdatePayment', {
-								shareKey,
+								_id,
 							})
 						}}
 					>

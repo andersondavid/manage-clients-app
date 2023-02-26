@@ -20,7 +20,7 @@ export default function ListItemClient(props: { clientData: TClientData }) {
 						},
 					]}
 				>
-					<Text style={styles.idText}>{clientData._id}</Text>
+					<Text style={styles.idText}>{clientData.shareKey}</Text>
 				</View>
 			</View>
 			<View style={styles.nameRow}>

@@ -41,8 +41,8 @@ const plansEnums = [
 ]
 
 const initialValues = {
-	_id: '',
-	shareKey: rand(36),
+	shareKey: '',
+	_id: rand(36),
 	created_at: new Date(),
 	name: '',
 	user: '',
@@ -65,7 +65,7 @@ type RouterProps = NativeStackScreenProps<RootStackParamList, 'Register'>
 
 export default function Register({ navigation, route }: RouterProps) {
 	const realm = useMainContext()
-	//EDIT MODE Pegar parametros da rota, principalmente _id e isEditMode
+	//EDIT MODE Pegar parametros da rota, principalmente shareKey e isEditMode
 	const params = route.params
 	//EDIT MODE State para valores default e para popular os campos no edit mode
 	const [clientValues, setClientValues] = useState<TClientData | any>(
@@ -77,11 +77,11 @@ export default function Register({ navigation, route }: RouterProps) {
 	})
 
 	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
-	const loadClient = async (shareKey: string) => {
+	const loadClient = async (_id: string) => {
 		try {
 			if (realm) {
 				const response = realm
-					.objectForPrimaryKey('ClientsSchema', shareKey)
+					.objectForPrimaryKey('ClientsSchema', _id)
 					?.toJSON()
 
 				setClientValues(response)
@@ -91,14 +91,14 @@ export default function Register({ navigation, route }: RouterProps) {
 		}
 	}
 
-	//EDIT MODE  Checa se estar no edit mode e usar o _id vindo dos parametros para buscar dados do cliente
+	//EDIT MODE  Checa se estar no edit mode e usar o shareKey vindo dos parametros para buscar dados do cliente
 	useEffect(() => {
 		if (params?.isEditMode) {
 			// chama a funcão para buscar dados do cliente
-			loadClient(params?.shareKey)
+			loadClient(params?._id)
 			navigation.setOptions({ title: 'Editar Cliente' })
 		} else {
-			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros\n')
+			console.log('REGISTER MODE: Não veio shareKey e isEditMode nos parametros\n')
 		}
 	}, [])
 
@@ -113,7 +113,7 @@ export default function Register({ navigation, route }: RouterProps) {
 				{
 					text: 'Abrir Cliente',
 					onPress: () => {
-						navigation.navigate('ClientPage', { shareKey: data?.shareKey })
+						navigation.navigate('ClientPage', { _id: data?._id })
 					},
 				},
 			]
@@ -123,6 +123,8 @@ export default function Register({ navigation, route }: RouterProps) {
 	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		if (!params?.isEditMode) {
+			console.log('data', data)
+			
 			data.created_at = new Date()
 			let result
 			try {
@@ -140,10 +142,10 @@ export default function Register({ navigation, route }: RouterProps) {
 			try {
 				if (realm) {
 					const response: TClientData | undefined | null =
-						realm.objectForPrimaryKey('ClientsSchema', params?.shareKey)
+						realm.objectForPrimaryKey('ClientsSchema', params?._id)
 					if (response) {
 						realm.write(() => {
-							response._id = data._id
+							response.shareKey = data.shareKey
 							response.name = data.name
 							response.user = data.user
 							response.pass = data.pass
@@ -168,7 +170,7 @@ export default function Register({ navigation, route }: RouterProps) {
 	const onError: SubmitErrorHandler<FieldValues> = (errors) => {
 		const missingRequiredFields: string[] = Object.keys(errors)
 		const FieldsName: { [property: string]: string } = {
-			_id: 'ID',
+			shareKey: 'ID',
 			name: 'Nome',
 			user: 'Usuario',
 			pass: 'Senha',
@@ -194,7 +196,7 @@ export default function Register({ navigation, route }: RouterProps) {
 				<FormProvider {...methods}>
 					<TextInputEl
 						label={'ID'}
-						name={'_id'}
+						name={'shareKey'}
 						placeholder={'1, 2, 3, ...'}
 						keyboardType={'numeric'}
 						rules={{ required: 'ID is required!' }}

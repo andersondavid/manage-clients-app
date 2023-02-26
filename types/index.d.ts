@@ -1,6 +1,6 @@
 export type TClientData = {
-	_id: string
 	shareKey: string
+	_id: string
 	created_at: Date
 	name: string;
 	user: string;
@@ -28,13 +28,13 @@ type TPaymentHistory = {
 export type RootStackParamList = {
   Home: undefined;
 	ClientPage: {
-		shareKey: string | undefined
+		_id: string | undefined
 	};
 	UpdatePayment: {
-    shareKey: string;
+    _id: string;
   };
   Register: {
     isEditMode: boolean | undefined;
-    shareKey: string;
+    _id: string;
   };
 };

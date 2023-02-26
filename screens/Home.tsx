@@ -25,9 +25,9 @@ export default function Home({ navigation }: RouterProps) {
 			if (realm) {
 				const response = realm
 					.objects<TClientData[]>('ClientsSchema')
-					.sorted('_id')
+					.sorted('shareKey')
 					.filtered(
-						`name CONTAINS[c] "${searchQuery}" || _id CONTAINS[c] "${searchQuery}"`
+						`name CONTAINS[c] "${searchQuery}" || shareKey CONTAINS[c] "${searchQuery}"`
 					)
 					.toJSON()
 				setClientState(response)
@@ -97,10 +97,10 @@ export default function Home({ navigation }: RouterProps) {
 			<ScrollView>
 				{clientState.map((client) => (
 					<TouchableOpacity
-						key={client.shareKey}
+						key={client._id}
 						onPressIn={() =>
 							navigation.navigate('ClientPage', {
-								shareKey: client.shareKey,
+								_id: client._id,
 							})
 						}
 					>

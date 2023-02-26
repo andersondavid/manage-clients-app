@@ -47,7 +47,7 @@ type RouterProps = NativeStackScreenProps<RootStackParamList, 'UpdatePayment'>
 
 export default function UpdatePayment({ navigation, route }: RouterProps) {
 	const realm = useMainContext()
-	const currentClientID = route.params.shareKey
+	const currentClientID = route.params._id
 
 	const [paymentDay, setPaymentDay] = useState(new Date())
 	const [modalPaymentDay, setModalPaymentDay] = useState(false)

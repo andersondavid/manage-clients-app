@@ -9,7 +9,8 @@ const RealmContextProvider = ({ children }: { children: any }) => {
 	useEffect(() => {
 		if (!realmState) {
 			(async () => {
-				setRealmState(await GetRealm())
+				const realm = await GetRealm()
+				setRealmState(realm)
 			})()
 		}
 	}, [])
