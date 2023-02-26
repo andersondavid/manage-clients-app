@@ -20,9 +20,11 @@ export type TClientData = {
 
 type TPaymentHistory = {
 	price: number;
+	_uniq_id: string;
 	date: Date;
 	method: string;
-	creditHistory: number
+	creditHistory: number,
+	_id: string;
 }
 
 export type RootStackParamList = {

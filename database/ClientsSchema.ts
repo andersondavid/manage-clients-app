@@ -28,6 +28,7 @@ const PaymentHistorySchema: ObjectSchema = {
 	name: 'PaymentHistorySchema',
 	primaryKey: '_id',
 	properties: {
+		_uniq_id: 'string',
 		_id: 'string',
 		price: 'double',
 		date: 'date',

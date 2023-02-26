@@ -22,6 +22,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { formatDate } from '../utils/formatDate'
 import { PickerEl } from '../components/PickerEl'
 import { useMainContext } from '../context/RealmContext'
+import { rand } from '@jsweb/randkey'
 
 type TDataToUpdate = {
 	expirationDate: Date
@@ -85,6 +86,8 @@ export default function UpdatePayment({ navigation, route }: RouterProps) {
 	const { ...methods } = useForm()
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		const dataFromForm: TPaymentHistory = {
+			_uniq_id: currentClientID,
+			_id: rand(36),
 			price: parseInt(data.getPaymentValue),
 			method: data.getPaymentMethod,
 			date: paymentDay,
