@@ -98,7 +98,7 @@ export default function Register({ navigation, route }: RouterProps) {
 			loadClient(params?._id)
 			navigation.setOptions({ title: 'Editar Cliente' })
 		} else {
-			console.log('REGISTER MODE: Não veio shareKey e isEditMode nos parametros\n')
+			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros\n')
 		}
 	}, [])
 
@@ -123,8 +123,6 @@ export default function Register({ navigation, route }: RouterProps) {
 	// AMBOS Se os campos estiverem preenchidos corretamente, grava o cliente no banco de dados
 	const onSubmit: SubmitHandler<FieldValues> = (data) => {
 		if (!params?.isEditMode) {
-			console.log('data', data)
-			
 			data.created_at = new Date()
 			let result
 			try {

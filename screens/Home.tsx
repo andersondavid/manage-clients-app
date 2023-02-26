@@ -81,15 +81,11 @@ export default function Home({ navigation }: RouterProps) {
 	useFocusEffect(
 		useCallback(() => {
 			searchClients()
-			console.log('useFocusEffect')
-			
 		}, [realm])
 	)
 
 	useEffect(() => {
 		changeHeaderBar()
-		console.log('useEffect')
-
 	}, [searchQuery, showSearchBar])
 
 	return (
