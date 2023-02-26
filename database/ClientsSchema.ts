@@ -4,7 +4,7 @@ const ClientsSchema: ObjectSchema = {
 	name: 'ClientsSchema',
 	properties: {
 		_id: 'string',
-		primaryKey: 'string',
+		shareKey: 'string',
 		created_at: 'date',
 		name: 'string',
 		user: 'string',
@@ -21,16 +21,18 @@ const ClientsSchema: ObjectSchema = {
 		expirationDate: 'date?',
 		paymentHistory: 'PaymentHistorySchema<>'
 	},
-	primaryKey: 'primaryKey',
+	primaryKey: '_id',
 }
 
 const PaymentHistorySchema: ObjectSchema = {
 	name: 'PaymentHistorySchema',
+	primaryKey: '_id',
 	properties: {
-		price: 'int',
+		_id: 'string',
+		price: 'double',
 		date: 'date',
 		method: 'string',
-		creditHistory: 'int'
+		creditHistory: 'double'
 	}
 }
 export {ClientsSchema, PaymentHistorySchema}

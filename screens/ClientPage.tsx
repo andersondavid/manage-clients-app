@@ -45,7 +45,7 @@ const PaymentHistoryTable = (props: { paymentHistory: TPaymentHistory[] }) => {
 }
 
 export default function ClientPage({ route, navigation }: any) {
-	const currentClientID = route.params.primaryKey
+	const currentClientID = route.params.shareKey
 	const [clientData, setClientData] = useState<any | TClientData>({})
 	const realm = useMainContext()
 
@@ -64,7 +64,7 @@ export default function ClientPage({ route, navigation }: any) {
 		created_at,
 		app,
 		planPrice,
-		primaryKey,
+		shareKey,
 		expirationDate,
 		paymentHistory = [],
 	}: TClientData = clientData
@@ -145,7 +145,6 @@ export default function ClientPage({ route, navigation }: any) {
 	}
 
 	const removePayment = async (selectedId: string) => {
-
 		try {
 			if (realm) {
 				const response: {
@@ -165,11 +164,10 @@ export default function ClientPage({ route, navigation }: any) {
 		}
 	}
 
-	const deleteClient = async (primaryKey: string) => {
-
+	const deleteClient = async (shareKey: string) => {
 		try {
 			if (realm) {
-				const response = realm.objectForPrimaryKey('ClientsSchema', primaryKey)
+				const response = realm.objectForPrimaryKey('ClientsSchema', shareKey)
 				if (response) {
 					realm.write(() => {
 						realm.delete(response)
@@ -187,7 +185,7 @@ export default function ClientPage({ route, navigation }: any) {
 				<TouchableOpacity
 					onPress={() =>
 						navigation.navigate('Register', {
-							primaryKey: currentClientID,
+							shareKey: currentClientID,
 							isEditMode: true,
 						})
 					}
@@ -201,12 +199,13 @@ export default function ClientPage({ route, navigation }: any) {
 	useFocusEffect(
 		useCallback(() => {
 			try {
-				if (realm) {
+				if (realm && currentClientID) {
 					const response = realm
 						.objectForPrimaryKey('ClientsSchema', currentClientID)
 						?.toJSON()
-
-					setClientData(response)
+					if (response) {
+						setClientData(response)
+					}
 				}
 			} catch (error) {
 				console.error(error)
@@ -329,7 +328,7 @@ export default function ClientPage({ route, navigation }: any) {
 					<TouchableOpacity
 						onPress={() => {
 							navigation.navigate('UpdatePayment', {
-								primaryKey,
+								shareKey,
 							})
 						}}
 					>

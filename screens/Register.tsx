@@ -42,7 +42,7 @@ const plansEnums = [
 
 const initialValues = {
 	_id: '',
-	primaryKey: rand(36),
+	shareKey: rand(36),
 	created_at: new Date(),
 	name: '',
 	user: '',
@@ -77,11 +77,11 @@ export default function Register({ navigation, route }: RouterProps) {
 	})
 
 	//EDIT MODE função para buscar dados do cliente para preencher os campos no edit mode
-	const loadClient = async (primaryKey: string) => {
+	const loadClient = async (shareKey: string) => {
 		try {
 			if (realm) {
 				const response = realm
-					.objectForPrimaryKey('ClientsSchema', primaryKey)
+					.objectForPrimaryKey('ClientsSchema', shareKey)
 					?.toJSON()
 
 				setClientValues(response)
@@ -95,7 +95,7 @@ export default function Register({ navigation, route }: RouterProps) {
 	useEffect(() => {
 		if (params?.isEditMode) {
 			// chama a funcão para buscar dados do cliente
-			loadClient(params?.primaryKey)
+			loadClient(params?.shareKey)
 			navigation.setOptions({ title: 'Editar Cliente' })
 		} else {
 			console.log('REGISTER MODE: Não veio _id e isEditMode nos parametros\n')
@@ -113,7 +113,7 @@ export default function Register({ navigation, route }: RouterProps) {
 				{
 					text: 'Abrir Cliente',
 					onPress: () => {
-						navigation.navigate('ClientPage', { primaryKey: data?.primaryKey })
+						navigation.navigate('ClientPage', { shareKey: data?.shareKey })
 					},
 				},
 			]
@@ -140,7 +140,7 @@ export default function Register({ navigation, route }: RouterProps) {
 			try {
 				if (realm) {
 					const response: TClientData | undefined | null =
-						realm.objectForPrimaryKey('ClientsSchema', params?.primaryKey)
+						realm.objectForPrimaryKey('ClientsSchema', params?.shareKey)
 					if (response) {
 						realm.write(() => {
 							response._id = data._id

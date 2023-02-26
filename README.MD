@@ -95,7 +95,7 @@
 - array de cliente
 	- cliente
 		- id
-		- primaryKey
+		- shareKey
 		- data do cadastro
 		- nome
 		- user

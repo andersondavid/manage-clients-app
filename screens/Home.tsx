@@ -97,10 +97,10 @@ export default function Home({ navigation }: RouterProps) {
 			<ScrollView>
 				{clientState.map((client) => (
 					<TouchableOpacity
-						key={client.primaryKey}
+						key={client.shareKey}
 						onPressIn={() =>
 							navigation.navigate('ClientPage', {
-								primaryKey: client.primaryKey,
+								shareKey: client.shareKey,
 							})
 						}
 					>
